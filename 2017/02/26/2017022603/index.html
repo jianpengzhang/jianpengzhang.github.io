@@ -1,0 +1,1020 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenStack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="OpenStack Mitaka Horiozn 主题开发一、写在前面这篇文章主要介绍了OpenStack Mitaka Horizo主题包的开发。这里只是说明horiozn主题包的开发逻辑，不具体阐述css、js、html文件的开发， 仅仅是说明horizon主题开发的方式，因为时间仓促以及个人理解有限，固有错误的地方请指出，后续将会不定期的完善，谢谢！如果转载，请保留作者信息。邮箱地址：jpz">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenStack Mitaka Horiozn 主题开发">
+<meta property="og:url" content="http://yoursite.com/2017/02/26/2017022603/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="OpenStack Mitaka Horiozn 主题开发一、写在前面这篇文章主要介绍了OpenStack Mitaka Horizo主题包的开发。这里只是说明horiozn主题包的开发逻辑，不具体阐述css、js、html文件的开发， 仅仅是说明horizon主题开发的方式，因为时间仓促以及个人理解有限，固有错误的地方请指出，后续将会不定期的完善，谢谢！如果转载，请保留作者信息。邮箱地址：jpz">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p14.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p1.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p2.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p3.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p4.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p5.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p6.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p7.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p9.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p10.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p11.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p13.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p14.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022603/p15.png">
+<meta property="og:updated_time" content="2017-02-26T10:21:22.621Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenStack Mitaka Horiozn 主题开发">
+<meta name="twitter:description" content="OpenStack Mitaka Horiozn 主题开发一、写在前面这篇文章主要介绍了OpenStack Mitaka Horizo主题包的开发。这里只是说明horiozn主题包的开发逻辑，不具体阐述css、js、html文件的开发， 仅仅是说明horizon主题开发的方式，因为时间仓促以及个人理解有限，固有错误的地方请指出，后续将会不定期的完善，谢谢！如果转载，请保留作者信息。邮箱地址：jpz">
+<meta name="twitter:image" content="http://yoursite.com/2017/02/26/2017022603/p14.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/26/2017022603/"/>
+
+
+
+
+
+  <title> OpenStack Mitaka Horiozn 主题开发 | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/26/2017022603/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                OpenStack Mitaka Horiozn 主题开发
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-26T16:18:51+08:00">
+                2017-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="OpenStack-Mitaka-Horiozn-主题开发"><a href="#OpenStack-Mitaka-Horiozn-主题开发" class="headerlink" title="OpenStack Mitaka Horiozn 主题开发"></a>OpenStack Mitaka Horiozn 主题开发</h1><h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>这篇文章主要介绍了OpenStack Mitaka Horizo主题包的开发。这里只是说明horiozn主题包的开发逻辑，不具体阐述css、js、html文件的开发， 仅仅是说明horizon主题开发的方式，因为时间仓促以及个人理解有限，固有错误的地方请指出，后续将会不定期的完善，谢谢！<br>如果转载，请保留作者信息。<br>邮箱地址：jpzhang.ht@gmail.com<br>主题下载地址：<a href="http://www.smallartisan.site/?p=38" target="_blank" rel="external">http://www.smallartisan.site/?p=38</a><br><img src="/2017/02/26/2017022603/p14.png" alt="图1" title="图1"><br><a id="more"></a>￼</p>
+<h2 id="二、环境准备"><a href="#二、环境准备" class="headerlink" title="二、环境准备"></a>二、环境准备</h2><p>注意：如果没有特殊说明，一下所有命令均是在root用户下执行。</p>
+<p>通过devstack 部署OpenStack Mitaka单节点基础版本（nova、keystone、glance、vloume、horizon），具体如何部署可以参考我的另一片<a href="http://blog.csdn.net/u011521019/article/details/51114681" target="_blank" rel="external">博文</a>，部署完成之后可以看到目录结构如下：<br>.<br>├── cinder<br>├── glance<br>├── horizon<br>├── keystone<br>├── logs<br>├── neutron<br>├── nova<br>├── noVNC<br>├── requirements<br>└── tempest<br>可以看到我这里安装的所有组件的源码包，根据实际情况会有不同，以自己的的为主。<br>这里主要介绍horizon组件theme的开发，其他组件这里不涉及，不需要关注，只要保证各个服务时运行正常即OK，后续将逐渐来说明其他的组件的开发，大家可以关注下我的博客或者最近刚建的<a href="http://www.smallartisan.site/" target="_blank" rel="external">博客</a>，后续将同步更新,废话不多说，进入正题。<br>拷贝一份horizon代码包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp -r horizon horizon.dev</div></pre></td></tr></table></figure>
+<p>进入：cd horizon.dev<br>通过django 自带的测试服务，运行horizon组件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">python manage.py runserver 0.0.0.0:8001</div><div class="line"></div><div class="line">输出：</div><div class="line">Performing system checks...</div><div class="line"></div><div class="line">System check identified no issues (0 silenced).</div><div class="line">June 12, 2016 - 13:21:59</div><div class="line">Django version 1.8.10, using settings &apos;openstack_dashboard.settings&apos;</div><div class="line">Starting development server at http://0.0.0.0:8001/</div><div class="line">Quit the server with CONTROL-C.</div></pre></td></tr></table></figure>
+<p>如果是通过devstack部署的，通过这种方式运行起来的horizon，通过浏览器访问,浏览器将会出现如下错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">Page not found (404)</div><div class="line">Request Method: GET</div><div class="line">Request URL:    http://192.168.31.235:8001/dashboard/auth/login/?next=/</div><div class="line">Using the URLconf defined in openstack_dashboard.urls, Django tried these URL patterns, in this order:</div><div class="line">^$ [name=&apos;splash&apos;]</div><div class="line">^api/</div><div class="line">^home/$ [name=&apos;user_home&apos;]</div><div class="line">^i18n/js/(?P&lt;packages&gt;\S+?)/$ [name=&apos;jsi18n&apos;]</div><div class="line">^i18n/setlang/$ [name=&apos;set_language&apos;]</div><div class="line">^i18n/</div><div class="line">^jasmine-legacy/$ [name=&apos;jasmine_tests&apos;]</div><div class="line">^jasmine/.*?$</div><div class="line">^identity/</div><div class="line">^developer/</div><div class="line">^admin/</div><div class="line">^settings/</div><div class="line">^project/</div><div class="line">^auth/</div><div class="line">^dashboard\/static\/(?P&lt;path&gt;.*)$</div><div class="line">^dashboard\/media\/(?P&lt;path&gt;.*)$</div><div class="line">^500/$</div><div class="line">The current URL, dashboard/auth/login/, didn&apos;t match any of these.</div><div class="line">You&apos;re seeing this error because you have DEBUG = True in your Django settings file. Change that to False, and Django will display a standard 404 page.</div></pre></td></tr></table></figure>
+<p>你可以看到浏览器url地址栏默认跳转到了：<br>“<a href="http://192.168.31.235:8001/dashboard/auth/login/?next=/“" target="_blank" rel="external">http://192.168.31.235:8001/dashboard/auth/login/?next=/“</a><br>如果我们手动把浏览器地址栏中的/dashoboard/去除再次刷新就可以看到熟悉的horizon默认的登录界面<br><img src="/2017/02/26/2017022603/p1.png" alt="图1" title="图1"></p>
+<p>不用担心，这是因为horizon的配置文件配置的url里面默认根目录是从“dashboard”开始的，如果通过apache运行，就可以在apache horizon的配置中看到，默认horiozn的资源访问路径是从‘dashboard’开始，apache如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">WSGIScriptAlias /dashboard /home/devstack.mitaka/horizon/openstack_dashboard/wsgi/django.wsgi</div><div class="line">    WSGIDaemonProcess horizon user=stack group=stack processes=3 threads=10 home=/home/devstack.mitaka/horizon display-name=%&#123;GROUP&#125;</div><div class="line">    WSGIApplicationGroup %&#123;GLOBAL&#125;</div><div class="line"></div><div class="line">    SetEnv APACHE_RUN_USER stack</div><div class="line">    SetEnv APACHE_RUN_GROUP stack</div><div class="line">    WSGIProcessGroup horizon</div><div class="line"></div><div class="line">    DocumentRoot /home/devstack.mitaka/horizon/.blackhole/</div><div class="line">    Alias /dashboard/media /home/devstack.mitaka/horizon/openstack_dashboard/static</div><div class="line">    Alias /dashboard/static /home/devstack.mitaka/horizon/static</div><div class="line"></div><div class="line">    RedirectMatch &quot;^/$&quot; &quot;/dashboard/&quot;</div></pre></td></tr></table></figure>
+<p>那这里我们只要修改horizon的配置，让其默认的访问路径从“/”开始即可正常。<br>具体修改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">vi horizon.dev/openstack_dashboard/local/local_settings.py</div><div class="line"></div><div class="line">找到：WEBROOT=&quot;/dashboard/&quot;</div><div class="line">修改为：WEBROOT=&quot;/&quot;</div><div class="line"></div><div class="line">cd horizon.dev/</div><div class="line">运行（静态文件压缩）：python manage.py compress</div><div class="line">输出：</div><div class="line">Found &apos;compress&apos; tags in:</div><div class="line">    /home/devstack.mitaka/horizon.dev/openstack_dashboard/templates/horizon/_conf.html</div><div class="line">    /home/devstack.mitaka/horizon.dev/openstack_dashboard/templates/_stylesheets.html</div><div class="line">    /home/devstack.mitaka/horizon.dev/openstack_dashboard/templates/horizon/_scripts.html</div><div class="line">Compressing... done</div><div class="line">Compressed 5 block(s) from 3 template(s) for 2 context(s).</div></pre></td></tr></table></figure>
+<p>重启服务：python manage.py runserver 0.0.0.0:8001<br>再次访问浏览器地址：<a href="http://192.168.31.235:8001/" target="_blank" rel="external">http://192.168.31.235:8001/</a><br>这回自动跳转到：<a href="http://192.168.31.235:8001/auth/login/?next=/" target="_blank" rel="external">http://192.168.31.235:8001/auth/login/?next=/</a><br>地址栏中没有出现“/dashboard/” 并且正常出现horizon登录界面，至此我们的开发环境准备完成，至于用什么IDE来开发，我相信每个程序员都有自己的喜好，这里我使用Sublime来开发，个人比较偏向于pycharm来开发，无奈环境安装在虚拟机中，pycharm社区版不支持远程开发，正好sublime有sftp工具能够远程通过代码进行开发，一拍即合，这里就用sublime来进行开发工作。</p>
+<h2 id="三、目录结构"><a href="#三、目录结构" class="headerlink" title="三、目录结构"></a>三、目录结构</h2><p>Horizon目录结构介绍，之前有一篇博文进行了专门的介绍，不了解的可以翻一翻，这里主要介绍下几个主题开发会用到的目录以及自己创建的主题包:<br>.<br>├── doc<br>├── horizon<br>├── horizon.egg-info<br>├── openstack_dashboard<br>├── releasenotes<br>├── static<br>└── tools<br>可以看到horizon最外层有一个static静态文件目录,这个静态目录是用来干什么的呢？进入目录可以看到它的结构如下：<br>.<br>├── app<br>├── auth<br>├── bootstrap<br>├── dashboard<br>├── framework<br>├── horizon<br>├── scss<br>└── themes</p>
+<p>这个目录其实就是horizon界面访问的静态文件的统一入口，所有样式模版（css、js、html）都是这个目录提供的，那是不是我们开发的静态文件放在这个目录中呢，其实不然，我这个目录的文件是通过一个命名生成的，<br>命令：python manage.py collectstatic<br>一般我会在后面加一个 “-c” 的参数，把原先 static目录中的内容清空。<br>大家可以通过python manage.py collectstatic －h 具体查看这个命令的功能，简单来说会把horizon目录下以及dashboard目录下所有用到的静态文件统一拷贝到这个目录中，在通过命令进行压缩，为上层提供所有的样式文件。<br>命令：python manage.py compress </p>
+<ul>
+<li><p>horizon.dev/horizon目录，这个目录用来定义horizon组件全局的样式文件，其中包括一个static、 templates、templatetags 目录，<br>static：存放一些静态文件CSS、 JS<br>templates：存放模版文件主要是html页面<br>templatetags：定义html模版页面中出现出现的标签例如：在horizon.dev/horizon/templates/horizon/_nav_list.html { % if user|has_permissions:component % }，horizon.dev/horizon/templatetags/horizon.py中就有定义。</p>
+</li>
+<li><p>horizon.dev/openstack_dashboard目录，同样在这个目录下也包括static、 templates、templatetags 目录，作用和上述的一样，不过这里定义的不是全局的，可以把它当作是对horizon目录中定义的文件，在这里在做差距化的定义。</p>
+</li>
+</ul>
+<p>那么horion加载的同一个文件在两个地方都有的情况下回调用哪个文件，这个你可以看下django 模版调用机制，horiozn组件很好的利用了这一点，这里我也记不太清了，记忆中是先调用openstck目录中的，找不到的情况下会去horizon里面去找。<br>好了，具体不再细聊了，接下去就开始我们定制化的开发工作。</p>
+<h2 id="四、bruce主题初始化"><a href="#四、bruce主题初始化" class="headerlink" title="四、bruce主题初始化"></a>四、bruce主题初始化</h2><p>进入我们的主题开发目录，通过拷贝现有的material目录结构来具体说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cd horizon.dev/openstack_dashboard/themes</div></pre></td></tr></table></figure>
+<p>该目录用来存放horizon组件的所有的主题包，默认已经有两个目录包default、material 在上个版本中，已经支持主题开发，甚至在juno版本中也支持了，只是在Mitaka更加完善了这部分，如果学会了在Mitaka版本的开发原理，在juno版本中开发也是如此。<br>默认horizon采用的是default 目录，但是可以通过dashboard界面的切换主题的按钮进行主题切换如下：<br><img src="/2017/02/26/2017022603/p2.png" alt="图2" title="图2">￼</p>
+<p>拷贝一份“Material”目录为bruce目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp -r material/ bruce</div></pre></td></tr></table></figure>
+<p>如果仅仅拷贝一份还是不行的，要让horizon识别，还需要在配置文件中进行配置，<br>这里我为了方便直接修改了settings.py(你也可以修改local/local_settings.py)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vi horizon.dev/openstack_dashboard/settings.py</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">AVAILABLE_THEMES = [</div><div class="line">    (</div><div class="line">        &apos;default&apos;,</div><div class="line">        pgettext_lazy(&apos;Default style theme&apos;, &apos;Default&apos;),</div><div class="line">        &apos;themes/default&apos;</div><div class="line">    ), (</div><div class="line">        &apos;material&apos;,</div><div class="line">        pgettext_lazy(&quot;Google&apos;s Material Design style theme&quot;, &quot;Material&quot;),</div><div class="line">        &apos;themes/material&apos;</div><div class="line">    ),</div><div class="line">    (</div><div class="line">        &apos;bruce&apos;,</div><div class="line">        pgettext_lazy(&quot;Google&apos;s Material Design style theme&quot;, &quot;Bruce&quot;),</div><div class="line">        &apos;themes/bruce&apos;</div><div class="line">    ),</div><div class="line">]</div></pre></td></tr></table></figure>
+<p>这个时候你刷新浏览器会提示错误，需要你运行“python manage.py compress”，重新编译压缩下，那就按照提示做，运行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">python manage.py compress</div><div class="line">重启： python manage.py runserver 0.0.0.0:8001</div></pre></td></tr></table></figure>
+<p>再次刷新浏览器，你就可以看到刚刚我们定义的主题bruce：￼<br><img src="/2017/02/26/2017022603/p3.png" alt="图3" title="图3"></p>
+<p>切换至Bruce主题可以看到和Material一样的样式主题<br><img src="/2017/02/26/2017022603/p4.png" alt="图4" title="图4"></p>
+<p>Bruce从Material拷贝过来当然一样。<br>那么如何让我们的Bruce主题成为horizon主题默认主题呢，还是一样，修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vi horizon.dev/openstack_dashboard/settings.py</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DEFAULT_THEME = &apos;default&apos; =&gt; DEFAULT_THEME = &apos;bruce&apos;</div></pre></td></tr></table></figure>
+<p>这个时候你清空浏览器缓存，重新登录horiozn，你就会发现horizon默认的主题采用的不是“default”而是我们定义的“bruce”。</p>
+<p>接下来我们来具体认识下从Material拷贝过来的目录包括了哪些东西，具体有什么用。<br>.<br>├── static<br>│   ├── bootstrap<br>│   ├── horizon<br>│   └── js<br>│   └── _styles.scss<br>│   └── _variables.scss<br>│<br>└── templates<br>    ├── auth<br>    ├── header<br>    ├── horizon<br>    └── material</p>
+<p>static（静态文件）：<br>bootstrap：引入bootstrap目录，具体可以看看bootstrap目录中的_styles.scss、_variables.scss<br>horizon：引入horizon组件的静态文件包<br>js：引入自定义的js文件<br>_styles.scss：引入bootstrap、horizon目录中的样式文件，通过“@import “bootstrap/styles”;”其中styles指的是bootstrap目录中_styles.scss文件，同理horizon。<br>_variables.scss：引入bootstrap、horizon目录中的定义的scss定义的变量文件，通过“@import “bootstrap/variables”;”其中variables指的是bootstrap目录中_variables.scss文件，同理horizon。</p>
+<p>templates html模版文件：<br>其实修改horizon的模版文件很简单，我只要按照上文中提到的horizon模版定义的路径，在自己的主题模版中再定义一遍就能覆盖，其实也不叫覆盖，就是在我的主题模版中一模一样的路径以及文件名定义一份，那么优先加载我定义的，当然前提是主题需要切换到我定义的主题上，不然还是不会加载的。<br>以下目录的介绍不单单指的是当前主题中定义的，还包括horizon主题模版中这些目录包含的内容，如果我对这些模版有修改的需求，我只需要在这里定义一遍，切换到我定义的主题时，就能应用上。<br>auth：horizon登录界面相关的模版文件<br>header：horizon内页header样式文件，包括项目切换等。<br>horizon：这个目录包括的东西比较多，包括内页左侧导航、form表单、table、model、tab等<br>material：这里我不需要了，直接删除旧可以了</p>
+<p>梳理了一遍，现在把bruce主题目录下面不需要的目录删除，添加自己需要的目录，具体目录结构如下：<br>为了方便开发，我这里直接把auth、templates、horizon拷贝到bruce templates目录中，按照正常的开发来说，我需要重定制什么那么就把什么文件在主题中定义一遍，我这边为了方便直接把整个目录拷贝过来了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cp -r /horizon.dev/horizon/templates/auth/</div><div class="line"></div><div class="line">cp -r /horizon.dev/openstack_dashboard/templates/header/</div><div class="line"></div><div class="line">cp -r /horizon.dev/horizon/templates/horizon/</div></pre></td></tr></table></figure>
+<p>并且在static目录中新建了一个bruce目录用来放我的静态文件。在最外层_styles.scss、_variables.scss文件中引入bruce目录中styles、variables定义的内容。引入方式很简单，分别在最外层_styles.scss、_variables.scss文件增加以下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">_styles.scss：</div><div class="line">@import &quot;bruce/styles&quot;;</div><div class="line"></div><div class="line">_variables.scss：</div><div class="line">@import &quot;bruce/variables&quot;;</div></pre></td></tr></table></figure>
+<p>在运行命令：<br>这里不再细说scss样式文件的开发，后续有时间在通过其他博文具体来说明。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">python manage.py collectstatic -c</div><div class="line">python manage.py compress</div></pre></td></tr></table></figure>
+<p>把你新增的scss文件编译压缩。</p>
+<p>最终你的目录结构看起来会是这个样子：<br>.<br>├── static<br>│   ├── bootstrap<br>│   ├── bruce<br>│           ├── _styles.scss<br>│           └── _variables.scss<br>│   ├── horizon<br>│   ├── _styles.scss<br>│   └── _variables.scss<br>└── templates<br>    ├── auth<br>    ├── header<br>    └── horizon</p>
+<p>其中，在templates/horizon目录下面，我从openstack_dashboard/templates/horizon/_scripts.html文件拷贝了一份，现在你可以把你的js文件放在static/bruce/js目录中，通过_scripts.html文件加载进来，不过，通过这个文件加载的js文件时全局的，即各个页面只要按照horizon的html结构就能全部应用到，如果不想在各个页面使用，可以单独在html页面中引用，css文件也可以通过在html页面中单独引用，具体怎么引你可以看下_scripts.html引用方式即可。</p>
+<h2 id="五、登录界面开发"><a href="#五、登录界面开发" class="headerlink" title="五、登录界面开发"></a>五、登录界面开发</h2><p>之前提过，horizon登录界面的模版文件全部定义在auth目录中，现在我们简单进行开发，</p>
+<p>打开：/themes/bruce/templates/auth/login.html 登录界面的入口文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&#123; % extends &quot;base.html&quot; % &#125;</div><div class="line">&#123; % load i18n % &#125;</div><div class="line"></div><div class="line">&#123; % block title % &#125;&#123; % trans &quot;Login&quot; % &#125;&#123; % endblock % &#125;</div><div class="line"></div><div class="line">&#123; % block body_id % &#125;splash&#123; % endblock % &#125;</div><div class="line"></div><div class="line">&#123; % block content % &#125;</div><div class="line">  &#123; % include &apos;auth/_login.html&apos; % &#125;</div><div class="line">&#123; % endblock %&#125;</div><div class="line"></div><div class="line">&#123; % block footer % &#125;</div><div class="line">  &#123; % include &apos;_login_footer.html&apos; % &#125;</div><div class="line">&#123; % endblock % &#125;</div></pre></td></tr></table></figure>
+<p>可以看到，这个文件继承自base.html,定义在horizon.dev/openstack_dashboard/templates目录中，<br>base.html：文件定义了整个html的目录结构，如果你需要调整html结构，可以把这个文件复制到/themes/bruce/templates/目录中，如果登录界面的html结构和内页的结构不一样，可以重定义一个login_base.html,只要{ % extends “login_base.html” % }即可。<br>这里同样我把这个文件复制了过来。为了说明，草率的进行了修改<br>修改加了一个div：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;body id=&quot;&#123; % block body_id % &#125;&#123; % endblock % &#125;&quot; ng-app=&apos;horizon.app&apos; ng-strict-di&gt;</div><div class="line">  &lt;div style=&quot;background-color: #DE1426;&quot;&gt;</div><div class="line">   Test</div><div class="line">  &lt;/div&gt;</div><div class="line">  ......</div></pre></td></tr></table></figure>
+<img src="/2017/02/26/2017022603/p5.png" alt="图5" title="图5">￼<br><br>可以看到生效了，看起来比较丑，哈哈，说明我们的结构修改生效了。<br><br>接下来我们再来看下auth/_login.html，<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123; % load i18n %&#125;</div><div class="line"> </div><div class="line">&#123; % if &apos;is_modal&apos; in request.GET or &apos;is_modal&apos; in request.POST % &#125;</div><div class="line">  &#123; % include &apos;auth/_login_modal.html&apos; % &#125;</div><div class="line">&#123; % else % &#125;</div><div class="line">  &#123; % include &apos;auth/_login_page.html&apos; % &#125;</div><div class="line">&#123; % endif % &#125;</div></pre></td></tr></table></figure>
+<p>用样这个文件引入了_login_modal.html文件和_login_page.html文件，如果你觉的这样的引入层级太复杂了，也可以直接修改掉。</p>
+<p>auth/_login_modal.html:定义登录表单,开开这个文件，可以看到它时继承自auth/_login_form.html文件，这个文件中详细定义了登录界面，<br>修改如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;div class=&quot;panel-heading&quot;&gt;</div><div class="line">&#123; % block login_header % &#125;</div><div class="line">  &lt;h3 class=&quot;login-title&quot;&gt;</div><div class="line">    &#123; % trans &apos;Log in&apos; % &#125;Hello World</div><div class="line">  &lt;/h3&gt;</div><div class="line">&#123; % endblock % &#125;</div><div class="line">&lt;/div&gt;</div></pre></td></tr></table></figure></p>
+<img src="/2017/02/26/2017022603/p6.png" alt="图6" title="图6">￼<br><br>简单吧，登录界面的修改就是这些auth/*.html页面中，具体就要看你需要修改成什么样子。<br><br>## 五、header 修改<br>好了，现在我们来看下登录进去之后header这块怎么来修改，<br>同理：header html页面主要在/themes/bruce/templates/header目录中<br>通过base.html：<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;div class=&apos;topbar&apos;&gt;</div><div class="line">  &#123; % include &quot;header/_header.html&quot; % &#125;</div><div class="line">&lt;/div&gt;</div></pre></td></tr></table></figure>
+<p>可以得知_header.html是header模块的入口文件，打开/themes/bruce/templates/header/_header.html<br>修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&lt;nav class=&quot;navbar navbar-default navbar-fixed-top&quot; style=&quot;background-color: #3E3B3B;&quot;&gt;</div><div class="line">....</div></pre></td></tr></table></figure>
+<p>效果如下：<br><img src="/2017/02/26/2017022603/p7.png" alt="图7" title="图7">￼</p>
+<p>继续往下看，可以看到_header.html文件中引入</p>
+<ul>
+<li><p>{ % include “header/_brand.html” % }:<br>没什么好讲，这个文件主要用来加载logo，如果你对logo的部署有所调整可以在这个文件中修改。</p>
+</li>
+<li><p>{ % include “header/_context_selection.html” % }:<br>该文件主要用来在定义项目／区域切换的样式：<br>简单修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123; % else % &#125;</div><div class="line">&lt;li class=&quot;dropdown&quot; style=&quot;background-color: #57b382;&quot;&gt;</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>{ % asset_img p8.png 图8 % }￼￼<br>可以看到项目切换颜色发生了变化。<br>在这个文件中通过{ % load context_selection % }自定义的标签引入了horizon.dev/openstack_dashboard/templatetags/context_selection.py 整个horizon项目中templatetags目录中定义的私有的django模版标签即自定义模版标签。<br>通过引入这个文件，在_context_selection.html中使用的标签都可以在context_selection.py文件中找到他的实现。<br>{ % show_overview % }：对应“def show_overview(context)”方法，并且可以根据这个方法得知它所使用的模版horizon.dev/openstack_dashboard/templates/context_selection/_overview.html，如果你想修改这个模版片段，原理都一样，那这个文件安相同的目录结构在我们的主题/themes/bruce/templates/context_selection/建立起来再进行修改即可，这里不再详细说明。<br>{ % show_domain_list % }：修改原理同上<br>{ % show_project_list % }：修改原理同上<br>{ % show_region_list % }：修改原理同上</p>
+</li>
+<li><p>{ % include “header/_user_menu.html” % }:<br>主要用来显示右侧点击当前登录用户名的下拉列表框，包括帮助、主题切换、退出等功能<br>简单修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123; % else % &#125;</div><div class="line">&lt;li class=&quot;dropdown user-menu&quot; style=&quot;background-color: #57b382;&quot;&gt;</div></pre></td></tr></table></figure>
+<p>效果：<br><img src="/2017/02/26/2017022603/p9.png" alt="图9" title="图9">￼￼</p>
+</li>
+<li><p>{ % include “header/_region_selection.html” % }:<br>用来定义区域选择，因为本地开发环境没有多区域，不能简单修改样式，但基本和上述一样进行修改即可。</p>
+</li>
+</ul>
+<p>如果你想在header下面添加面包屑，这一块horizon默认已经给我写好了一个样式，通过下面的修改很快就能实现一个简单样式的面包屑，当然样式就不咋的了，<br>修改：/themes/bruce/templates/header/_header.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line">&lt;div style=&quot;    margin-top: 43px; margin-left: 240px;&quot;&gt;</div><div class="line">&#123; % include &apos;horizon/common/_breadcrumb_nav.html&apos; % &#125;</div><div class="line">&lt;/div&gt;</div><div class="line">&#123; % endspaceless % &#125;</div></pre></td></tr></table></figure>
+<img src="/2017/02/26/2017022603/p10.png" alt="图10" title="图10">￼￼<br><br>header的开发就讲到这里，其实都还比较简单。<br><br>## 五、sidebar修改(侧边导航)<br>根据/themes/bruce/templates/base.html 可知侧边导航入口文件为：{ % include ‘horizon/common/_sidebar.html’ % }<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line">&#123; % block sidebar % &#125;</div><div class="line">          &#123; % include &apos;horizon/common/_sidebar.html&apos; % &#125;</div><div class="line">&#123; % endblock % &#125;</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>ok,我们打开/themes/bruce/templates/horizon/common/_sidebar.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123; % load branding horizon i18n % &#125;</div><div class="line"></div><div class="line">&lt;div id=&apos;sidebar&apos; style=&quot;background: #353644;&quot;&gt;</div><div class="line">  &#123; % horizon_nav % &#125;</div><div class="line">&lt;/div&gt;</div></pre></td></tr></table></figure>
+<p>那么在哪里定义了horizon_nav这个变量呢？可以看到它加载了{ % load branding horizon i18n % }，注意，这里有“horizon”这个文件指的是horizon.dev/horizon/templatetags/horizon.py，其中{ % horizon_nav % }标签通过文件中的”def horizon_nav(context):“函数方法定义，并且该函数方法指定了模版文件为horizon/_sidebar.html。如果需要对返回的数据格式有修改就需要改动这个文件，不建议直接修改，可以重构一个方法来进行修改合适。打开/themes/bruce/templates/horizon/_sidebar.html，没什么好讲都是html代码，其中导航就是通过for标签循环components变量加载出来的，直接进行修改就行了。<br>简单的在：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">/themes/bruce/templates/horizon/common/_sidebar.html</div><div class="line">&#123; % load branding horizon i18n % &#125;</div><div class="line">&lt;div id=&apos;sidebar&apos; style=&quot;background: #43444C;&quot;&gt;</div><div class="line">  &#123; % horizon_nav % &#125;</div><div class="line">&lt;/div&gt;</div><div class="line"></div><div class="line"></div><div class="line">/themes/bruce/templates/horizon/_sidebar.html</div><div class="line">在不同的&lt;li&gt;以及&lt;a&gt;便签添加了</div><div class="line">style=&quot;color: #fff&quot;</div><div class="line">style=&quot;background: #353644;&quot;</div></pre></td></tr></table></figure>
+<p>效果如下：<br><img src="/2017/02/26/2017022603/p11.png" alt="图11" title="图11">￼￼</p>
+<h2 id="六、page-header-修改"><a href="#六、page-header-修改" class="headerlink" title="六、page header 修改"></a>六、page header 修改</h2><p>/themes/bruce/templates/base.html文件中包括了html<br>horizon/common/_page_header.html:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">.....</div><div class="line"> &#123; % block page_header % &#125;</div><div class="line">   &#123; % include &quot;horizon/common/_page_header.html&quot; with title=page_title % &#125;</div><div class="line"> &#123; % endblock % &#125;</div><div class="line"> ......</div></pre></td></tr></table></figure>
+<p>这个文件主要用来定义右侧页面用来显示当前plan名字位置区域，开打该文件：<br>/themes/bruce/templates/horizon/common/_page_header.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&#123; % load i18n %&#125;</div><div class="line">&#123; % block page_header %&#125;</div><div class="line">  &lt;div class=&apos;page-header&apos;&gt;</div><div class="line">    &#123; % if actions %&#125;</div><div class="line">      &lt;form class=&apos;actions_column pull-right&apos; action=&apos;&#123;&#123; url &#125;&#125;&apos; method=&quot;POST&quot;&gt;</div><div class="line">        &#123; % csrf_token %&#125;</div><div class="line">        &#123;&#123; actions &#125;&#125;</div><div class="line">      &lt;/form&gt;</div><div class="line">    &#123; % endif %&#125;</div><div class="line">  &lt;/div&gt;</div><div class="line">&#123; % endblock %&#125;</div></pre></td></tr></table></figure>
+<p>修改为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&#123; % load i18n % &#125;</div><div class="line">&#123; % block page_header % &#125;</div><div class="line">  &lt;div class=&apos;page-header&apos;&gt;</div><div class="line">  &lt;div class=&quot;alert&quot; style=&quot;background-color:#bce8f1;border-color: #bce8f1;color: #31708f;&quot; role=&quot;alert&quot;&gt;</div><div class="line">      BruceCloud 为您提供一种随时获取的、弹性的计算能力，这种计算能力的体现就是 &lt;em&gt;主机（Instance）&lt;/em&gt;。主机就是一台配置好了的服务器，它有您期望的硬件配置、操作系统和网络配置。通常情况下，您的请求可以在10秒到60秒的时间之内 完成，所以您完全可以动态地、按需使用计算能力。</div><div class="line"></div><div class="line">  &lt;/div&gt;</div><div class="line">    &#123; % if actions % &#125;</div><div class="line">      &lt;form class=&apos;actions_column pull-right&apos; action=&apos;&#123;&#123; url &#125;&#125;&apos; method=&quot;POST&quot;&gt;</div><div class="line">        &#123; % csrf_token % &#125;</div><div class="line">        &#123;&#123; actions &#125;&#125;</div><div class="line">      &lt;/form&gt;</div><div class="line">    &#123; % endif % &#125;</div><div class="line">  &lt;/div&gt;</div><div class="line">&#123; % endblock % &#125;</div></pre></td></tr></table></figure>
+<p>效果：{ % asset_img p12.png 图12 % }￼￼</p>
+<h2 id="六、footer-修改"><a href="#六、footer-修改" class="headerlink" title="六、footer 修改"></a>六、footer 修改</h2><p>/themes/bruce/templates/base.html文件中包括了html<br>_footer.html :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123; % block footer % &#125;</div><div class="line">    &#123; % include &quot;_footer.html&quot; % &#125;</div><div class="line">&#123; % endblock % &#125;</div></pre></td></tr></table></figure>
+<p>该文件默认放在horizon.dev/openstack_dashboard/templates/_footer.html目录下，老方法，拷贝一份到/themes/bruce/templates/目录下，打开：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123; % comment % &#125;</div><div class="line">  A simple placeholder template for custom global footer content</div><div class="line">&#123; % endcomment % &#125;</div></pre></td></tr></table></figure>
+<p>默认控制为不显示出来，不细究，反正比较简单。</p>
+<h2 id="六、messages-修改"><a href="#六、messages-修改" class="headerlink" title="六、messages 修改"></a>六、messages 修改</h2><p>/themes/bruce/templates/base.html文件中包括了html<br>horizon/_messages.html:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line">&lt;div id=&apos;main_content&apos; style=&quot;margin-top: -90px;&quot;&gt;</div><div class="line">        &#123; % include &quot;horizon/_messages.html&quot; % &#125;</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>打开：/themes/bruce/templates/horizon/_messages.html：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123; % for message in messages % &#125;</div><div class="line">  &#123; % if &quot;info&quot; in message.tags % &#125;</div><div class="line">    &lt;div class=&quot;alert alert-info alert-dismissable fade in&quot;&gt;</div><div class="line">      &lt;a class=&quot;close&quot; data-dismiss=&quot;alert&quot; href=&quot;#&quot;&gt;</div><div class="line">        &lt;span class=&quot;fa fa-times&quot;&gt;&lt;/span&gt;</div><div class="line">      &lt;/a&gt;</div><div class="line">      &lt;p&gt;&lt;strong&gt;&#123;% trans &quot;Info: &quot; % &#125;&lt;/strong&gt;&#123;&#123; message &#125;&#125;&lt;/p&gt;</div><div class="line">    &lt;/div&gt;</div><div class="line">  &#123; % endif % &#125;</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>文件中定义不同消息类型显示的样式。需要修改的直接改这个文件就可以了。</p>
+<h2 id="七、project-instances修改"><a href="#七、project-instances修改" class="headerlink" title="七、project/instances修改"></a>七、project/instances修改</h2><p>原理很简单，在每个模块下面都有一个templates，当然不直接修改这个目录下面的模版文件，我们把整个模版目录拷贝到我们的主题模版目录下面来进行修改，例如：<br>建立如下目录结构：<br>horizon.dev/openstack_dashboard/themes/bruce/templates/project<br>拷贝：<br>cp -r ../../../../dashboards/project/instances/templates/instances/ ./<br>好了，现在我们开始修改我们主机模版目录下面的instances模版样式文件：<br>修改云主机下拉列表页面，打开目录：themes/bruce/templates/project/instances/index.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123; % extends &apos;base.html&apos; % &#125;</div><div class="line">&#123; % load i18n % &#125;</div><div class="line">&#123; % block title % &#125;&#123; % trans &quot;Instances&quot; % &#125;&#123; % endblock % &#125;</div><div class="line"></div><div class="line">&#123; % block main % &#125;</div><div class="line">  &lt;div class=&quot;jumbotron&quot;&gt;</div><div class="line">  &lt;h1&gt;Hello, world!&lt;/h1&gt;</div><div class="line">  &lt;p&gt;...&lt;/p&gt;</div><div class="line">  &lt;p&gt;&lt;a class=&quot;btn btn-primary btn-lg&quot; href=&quot;#&quot; role=&quot;button&quot;&gt;Learn more&lt;/a&gt;&lt;/p&gt;</div><div class="line">&lt;/div&gt;</div><div class="line">  &#123;&#123; table.render &#125;&#125;</div><div class="line">&#123; % endblock % &#125;</div></pre></td></tr></table></figure>
+<p>效果：</p>
+<p><img src="/2017/02/26/2017022603/p13.png" alt="图13" title="图13">￼￼</p>
+<p>修改table样式：<br>类似table、modal、form样式的定义不在instances这个目录下面，这个目录下定义的都是instances所特有的样式结构；table、modal、form这些样式的定义往往是全局的，基本都是放在themes/bruce/templates/horizon/common目录下面，<br>例如：<br>themes/bruce/templates/horizon/common/_data_xxx.html用来定义table的样式；<br>themes/bruce/templates/horizon/common/_form_xxx.html定义form表单；<br>themes/bruce/templates/horizon/common/_modal_xxx.html定义modal表单；定义弹出框；<br>……<br>其他模块的修改都是类似的，例如概况页面、云硬盘等。</p>
+<p><img src="/2017/02/26/2017022603/p14.png" alt="图14" title="图14">￼</p>
+<p>主题切换回default：<br><img src="/2017/02/26/2017022603/p15.png" alt="图15" title="图15">￼￼</p>
+<p>对原来主题没有任何影响，不得不佩服OpenStack Horizon代码架构越来越好了，</p>
+<p>好了OpenStack Horizon的主题开发就讲到这里，后续将推出更多这样的文章！</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenStack/" rel="tag"># OpenStack</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/26/2017022602/" rel="next" title="OpenStack Horizon 主题下载">
+                <i class="fa fa-chevron-left"></i> OpenStack Horizon 主题下载
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/26/2017022604/" rel="prev" title="Python 数据结构和算法">
+                Python 数据结构和算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OpenStack-Mitaka-Horiozn-主题开发"><span class="nav-number">1.</span> <span class="nav-text">OpenStack Mitaka Horiozn 主题开发</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、环境准备"><span class="nav-number">1.2.</span> <span class="nav-text">二、环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、目录结构"><span class="nav-number">1.3.</span> <span class="nav-text">三、目录结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、bruce主题初始化"><span class="nav-number">1.4.</span> <span class="nav-text">四、bruce主题初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、登录界面开发"><span class="nav-number">1.5.</span> <span class="nav-text">五、登录界面开发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、page-header-修改"><span class="nav-number">1.6.</span> <span class="nav-text">六、page header 修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、footer-修改"><span class="nav-number">1.7.</span> <span class="nav-text">六、footer 修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、messages-修改"><span class="nav-number">1.8.</span> <span class="nav-text">六、messages 修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、project-instances修改"><span class="nav-number">1.9.</span> <span class="nav-text">七、project/instances修改</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
