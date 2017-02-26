@@ -1,0 +1,983 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenStack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一、写在前面这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenStack Mitaka keystone 分页（pagination）实现">
+<meta property="og:url" content="http://yoursite.com/2017/02/26/2017022605/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="一、写在前面这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.co">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p1.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p2.png">
+<meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p3.png">
+<meta property="og:updated_time" content="2017-02-26T10:34:42.741Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenStack Mitaka keystone 分页（pagination）实现">
+<meta name="twitter:description" content="一、写在前面这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.co">
+<meta name="twitter:image" content="http://yoursite.com/2017/02/26/2017022605/p1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/26/2017022605/"/>
+
+
+
+
+
+  <title> OpenStack Mitaka keystone 分页（pagination）实现 | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/26/2017022605/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                OpenStack Mitaka keystone 分页（pagination）实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-26T18:12:19+08:00">
+                2017-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。<br>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io" target="_blank" rel="external">https://jianpengzhang.github.io</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a><br>代码下载：<a href="https://jianpengzhang.github.io/2017/02/26/2017022606/" target="_blank" rel="external">https://jianpengzhang.github.io/2017/02/26/2017022606/</a><br><a id="more"></a>￼</p>
+<h2 id="二、Keystone-分页历史"><a href="#二、Keystone-分页历史" class="headerlink" title="二、Keystone 分页历史"></a>二、Keystone 分页历史</h2><p>Identity (keystone) 分页早在2013年的时候就被提出，记忆中openstack开发峰会中还专门进行了讨论，时间过的太久记不起来，也懒得查找资料来说明历史，唯独找到<a href="https://blueprints.launchpad.net/keystone/+spec/pagination-backend-support" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/pagination-backend-support</a>，这个页面记录着在13年的时候扩展Identity (keystone)，尽可能提高伸缩和性能被当作为一个Blueprints记录着，其中<a href="https://blueprints.launchpad.net/keystone/+spec/filtering-backend-support" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/filtering-backend-support</a>表示这个Blueprints在14年有一个里程碑的进展，但是从代码层面看，并没有真正实现底层代码的分页。</p>
+<p><a href="https://blueprints.launchpad.net/keystone/+spec/pagination" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/pagination</a>说明：<br>分页的当前状态是未知的。本该在IceHouse summit会议 “kill pagination” 但是它从未兑现。分页依旧是残留的。</p>
+<p><a href="https://blueprints.launchpad.net/keystone/+spec/user-list-pagination" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/user-list-pagination</a> 可以看到分页在2015年-09-11重新被提出，但是通过Blueprint information没有里程碑的进展，</p>
+<p>目前分页的<a href="http://lists.openstack.org/pipermail/openstack-dev/2013-August/013582.html" target="_blank" rel="external">三个问题</a>：<br>1、Marker+Limit(例如:实现“向前”分页)构建一个用户界面分页是不合适的。<br>2、分页扩展性不好<br>3、OpenStack提供的Api过滤功能并不是很好用。</p>
+<p>Pagaination 反对的论点：</p>
+<p>1.分页被滥用。例如，如果后端、配置不正确，可能需要很长的时间来满足用户通用的查询以及可能会返回大量的数据。<br>2.分页可能会伤害用户体验。请<a href="http://lists.openstack.org/pipermail/openstack-dev/2013-August/013582.html" target="_blank" rel="external">参阅</a></p>
+<p>然而这不是分页根本性的障碍，从 API 的角度，分页是必要和有用的。</p>
+<h2 id="三、分页实现"><a href="#三、分页实现" class="headerlink" title="三、分页实现"></a>三、分页实现</h2><h3 id="项目列表代码分析"><a href="#项目列表代码分析" class="headerlink" title="项目列表代码分析"></a>项目列表代码分析</h3><p>这里通过devstack部署的Mitaka版本来进行代码分析，默认部署完成之后keystone API 接口用的是V3， 但是简单看了下代码，horizon中对项目（tenants）连最基本的分页都没有，就决定不再基于V3接口代码下来讲解，通过对V2.0接口的代码来说明，因为V2.0接口中至少简单实现了tenants的部分分页代码，基于此来说明久更加方便易懂，读者也只需要掌握了基本的思路，想扩展其他功能列表的分页也比较轻易的事情。这里就允许自己偷个懒。<br>V3接口项目列表（已在设置中设置每页显示2条记录）：<img src="/2017/02/26/2017022605/p1.png" alt="p1.png" title="">￼<br>你可以看到设置每页显示条目根本没有起作用。</p>
+<p>V2.0 接口项目列表（已在设置中设置每页显示2条记录）：<br><img src="/2017/02/26/2017022605/p2.png" alt="p2.png" title="">￼<br>对比就比较明显，使用2.0的keystone接口，至少“前进“－&gt;下一页的按钮出来，能够进行分页，但是马上你会发现只有“前进”没有“后退”，不能翻看上一页的数据，不得不说openstack中的分页真是蛋疼。<br>如果你和我一样，默认的API接口是3，通过一下的方式就可以进行切换。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">/openstack_dashboard/local/local_settings.py</div><div class="line">WEBROOT=&quot;/&quot;</div><div class="line">COMPRESS_OFFLINE=True</div><div class="line">OPENSTACK_KEYSTONE_DEFAULT_ROLE=&quot;Member&quot;</div><div class="line">OPENSTACK_HOST=&quot;192.168.31.235&quot;</div><div class="line"># 注意，这里一定要写2.0</div><div class="line">OPENSTACK_API_VERSIONS=&#123;&quot;identity&quot;:2.0&#125;</div><div class="line">OPENSTACK_KEYSTONE_URL=&quot;http://192.168.31.235:5000/v2.0&quot;</div></pre></td></tr></table></figure>
+<p>OK，keystone配置成V2.0的接口，接下去我们就来梳理下，“向前”实现的方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/openstack_dashboard/dashboards/identity/projects/urls.py</div><div class="line"></div><div class="line">urlpatterns = patterns(</div><div class="line">    &apos;&apos;,</div><div class="line">    url(r&apos;^$&apos;, views.IndexView.as_view(), name=&apos;index&apos;),</div><div class="line">    ......</div></pre></td></tr></table></figure>
+<p>通过urls路由映射，可以查看出，项目（tenants）页面请求调用的方法是views.IndexView方法。</p>
+<p>代码有点长：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">/openstack_dashboard/dashboards/identity/projects/views.py</div><div class="line"></div><div class="line">class IndexView(tables.DataTableView):</div><div class="line">    table_class = project_tables.TenantsTable</div><div class="line">    template_name = &apos;identity/projects/index.html&apos;</div><div class="line">    page_title = _(&quot;Projects&quot;)</div><div class="line"></div><div class="line">    def has_more_data(self, table):</div><div class="line">        # 返回True/False，table根据返回值显示是否有下一页的按钮链接</div><div class="line">        return self._more</div><div class="line"></div><div class="line">    def get_data(self):</div><div class="line">        tenants = []</div><div class="line">        # 获取request.GET对象中“tenant_marker”值，该值指的是当前页面最后一条tenant的ID值</div><div class="line">        marker = self.request.GET.get(</div><div class="line">            project_tables.TenantsTable._meta.pagination_param, None)</div><div class="line"></div><div class="line">        # 设置默认没有下一页</div><div class="line">        self._more = False</div><div class="line">        # 权限判断，判断当前用户时候有identity:list_projects、list_user_projects权限，</div><div class="line">        if policy.check(((&quot;identity&quot;, &quot;identity:list_projects&quot;),),</div><div class="line">                        self.request):</div><div class="line">            domain_context = api.keystone.get_effective_domain_id(self.request)</div><div class="line">            # paginate 参数用来设置是否采用分页</div><div class="line">            try:</div><div class="line">                tenants, self._more = api.keystone.tenant_list(</div><div class="line">                    self.request,</div><div class="line">                    domain=domain_context,</div><div class="line">                    paginate=True,</div><div class="line">                    marker=marker)</div><div class="line">            except Exception:</div><div class="line">                exceptions.handle(self.request,</div><div class="line">                                  _(&quot;Unable to retrieve project list.&quot;))</div><div class="line">        elif policy.check(((&quot;identity&quot;, &quot;identity:list_user_projects&quot;),),</div><div class="line">                          self.request):</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>重点关注IndexView类中的has_more_data、get_data方法：<br>has_more_data：返回self._more值，该值根据返回的数据数量确定下一页是否有数据，如果有数据该值为True，即页面上显示“向前”，当然相对应的还有has_prev_data方法，这在下文进行扩展的时候具体说明。<br>get_data：该方法用来获取项目（tenants）页面tables中显示的数据信息。</p>
+<p>接下去重点看下get_data方法，其中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line">marker = self.request.GET.get(</div><div class="line"> project_tables.TenantsTable._meta.pagination_param, None)</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>这段代码用来从request.GET对象中获取 “project_tables.TenantsTable._meta.pagination_param”，如果没有该值即返回None，那么这里代表的是什么值呢？一点点拆分这部分代码，<br>project_tables：openstack_dashboard.dashboards.identity.projects.tables.py -&gt; class TenantsTable()该table类定义项目（tenants）页面table。<br>_meta：指的是TenantsTable中的元类(metaclass),class Meta(object)即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">class Meta(object):</div><div class="line">        name = &quot;tenants&quot;</div><div class="line">        verbose_name = _(&quot;Projects&quot;)</div><div class="line">        row_class = UpdateRow</div><div class="line">        row_actions = (UpdateMembersLink, UpdateGroupsLink, UpdateProject,</div><div class="line">                       UsageLink, ModifyQuotas, DeleteTenantsAction,</div><div class="line">                       RescopeTokenToProject)</div><div class="line">        table_actions = (TenantFilterAction, CreateProject,</div><div class="line">                         DeleteTenantsAction)</div><div class="line">        pagination_param = &quot;tenant_marker&quot;</div></pre></td></tr></table></figure>
+<p>pagination_param:即class Meta(object)中的属性，属性值是”tenant_marker”，<br>到了这里就比较清楚了，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">marker = self.request.GET.get(</div><div class="line"> project_tables.TenantsTable._meta.pagination_param, None)</div><div class="line"> </div><div class="line"> 指的是：</div><div class="line"> </div><div class="line"> marker = self.request.GET.get(&quot;tenant_marker&quot;, None)</div></pre></td></tr></table></figure>
+<p>经过调试，marker其实获取的是用户点击下一页的时候request.GET中tenant ID值，即浏览器地址中看到的“<a href="http://192.168.31.235:8001/identity/?tenant_marker=64d50f68d69b451c8653296db25d9c86”，这个Tenant" target="_blank" rel="external">http://192.168.31.235:8001/identity/?tenant_marker=64d50f68d69b451c8653296db25d9c86”，这个Tenant</a> ID指的是当前页面最后一条tenant 的ID，关于这个ID有什么作用后面会具体说明。</p>
+<p>调用api.keystone.tenant_list方法获取tenant list 数据，传入参数paginate布尔值，代码是否进行分页，返回tenants、 self._more，self._more布尔值表示是否有更多的数据需要下一页显示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">tenants, self._more = api.keystone.tenant_list(</div><div class="line">                    self.request,</div><div class="line">                    domain=domain_context,</div><div class="line">                    paginate=True,</div><div class="line">                    marker=marker)</div></pre></td></tr></table></figure>
+<p>调用api.keystone.tenant_list方法获取数据，代码具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">openstack_dashboard/api/keystone.py:</div><div class="line"></div><div class="line">def tenant_list(request, paginate=False, marker=None, domain=None, user=None,</div><div class="line">                admin=True, filters=None):</div><div class="line">    manager = VERSIONS.get_project_manager(request, admin=admin)</div><div class="line"></div><div class="line">    # 获取每页显示多少条数据</div><div class="line">    page_size = utils.get_page_size(request)</div><div class="line"></div><div class="line">    limit = None</div><div class="line">    # 判断是否进行分页，如果分页从底层抓取数据的数据的时候夺取一条，用来判断是否还有更多的数据，用于判断是否显示下一页</div><div class="line">    if paginate:</div><div class="line">        limit = page_size + 1</div><div class="line"></div><div class="line">    has_more_data = False</div><div class="line"></div><div class="line">    # if requesting the projects for the current user,</div><div class="line">    # return the list from the cache</div><div class="line">    if user == request.user.id:</div><div class="line">        tenants = request.user.authorized_tenants</div><div class="line"></div><div class="line">    elif VERSIONS.active &lt; 3:</div><div class="line">        # 判断keystone API 接口版本，这里使用的是2.0接口</div><div class="line">        tenants = manager.list(limit, marker)</div><div class="line">        # 判断获取的数据是否比每页显示的数据多，如果获取的数据多于每页需要显示的数据，即表示还有下一页数据展示</div><div class="line">        if paginate and len(tenants) &gt; page_size:</div><div class="line">            # 按照用户配置显示制定数量的数据，移除多抓取出来的一条数据</div><div class="line">            tenants.pop(-1)</div><div class="line">            # 设置下一页数据显示为true，</div><div class="line">            has_more_data = True</div><div class="line">    # V3 API</div><div class="line">    else:</div><div class="line">        domain_id = get_effective_domain_id(request)</div><div class="line">        kwargs = &#123;</div><div class="line">            &quot;domain&quot;: domain_id,</div><div class="line">            &quot;user&quot;: user</div><div class="line">        &#125;</div><div class="line">        if filters is not None:</div><div class="line">            kwargs.update(filters)</div><div class="line">        tenants = manager.list(**kwargs)</div><div class="line">    return tenants, has_more_data</div></pre></td></tr></table></figure>
+<p>这里调用“tenants = manager.list(limit, marker)”，传入需要参数limit、marker。<br>limit：每页显示几条数据，抓取数据的时候多抓取一条，用于判断是否还有更多的数据，多取一条数据的目的为了判断显示“上一页”、“下一页”。<br>marker：这个值很有意思，这是horizon默认分页采用的原理，marker表示当前页面第一条数据或者最后一条数据的ID值，如果点击的是下一页，这个值既是当前页面最后一条记录的ID值，该值传入到keystone中，底层代码判断该条数据在数据库中的位置，下一页的数据就从这条数据所在的位置开始取，取指定数量的数据。如果点击的是上一页，这个数值表示的是当前页面第一条数据的ID，用处也是一样，用于告知底层取下一页的数据从什么位置开始取。</p>
+<p>调用keystoneclient的代码发起request请求，获取数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">keystoneclient/v2_0/tenants.py:</div><div class="line">def list(self, limit=None, marker=None):</div><div class="line">        &quot;&quot;&quot;Get a list of tenants.</div><div class="line"></div><div class="line">        :param integer limit: maximum number to return. (optional)</div><div class="line">        :param string marker: use when specifying a limit and making</div><div class="line">                              multiple calls for querying. (optional)</div><div class="line"></div><div class="line">        :rtype: list of :class:`Tenant`</div><div class="line"></div><div class="line">        &quot;&quot;&quot;</div><div class="line">            # 组拼参数</div><div class="line">        params = &#123;&#125;</div><div class="line">        if limit:</div><div class="line">            params[&apos;limit&apos;] = limit</div><div class="line">        if marker:</div><div class="line">            params[&apos;marker&apos;] = marker</div><div class="line"></div><div class="line">        query = &quot;&quot;</div><div class="line">        if params:</div><div class="line">            query = &quot;?&quot; + urllib.parse.urlencode(params)</div><div class="line"></div><div class="line">        # NOTE(jamielennox): try doing a regular admin query first. If there is</div><div class="line">        # no endpoint that can satisfy the request (eg an unscoped token) then</div><div class="line">        # issue it against the auth_url.</div><div class="line">        try:</div><div class="line">            tenant_list = self._list(&apos;/tenants%s&apos; % query, &apos;tenants&apos;)</div><div class="line">        except exceptions.EndpointNotFound:</div><div class="line">            endpoint_filter = &#123;&apos;interface&apos;: auth.AUTH_INTERFACE&#125;</div><div class="line">            tenant_list = self._list(&apos;/tenants%s&apos; % query, &apos;tenants&apos;,</div><div class="line">                                     endpoint_filter=endpoint_filter)</div><div class="line"></div><div class="line">        return tenant_list</div></pre></td></tr></table></figure>
+<p>这一块没什么好讲，组拼请求参数，发起GET请求至nova api，用于获取数据，没有什么好讲，每个API接口调用都是一样的。</p>
+<p>接下来我们具体来看下keystone组件中对于tenant请求的处理，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">keystone/keystone/assignment/routers.py</div><div class="line"></div><div class="line">class Public(wsgi.ComposableRouter):</div><div class="line">    def add_routes(self, mapper):</div><div class="line">        # 定义处理的控制器类</div><div class="line">        tenant_controller = controllers.TenantAssignment()</div><div class="line">        # 映射，将通过“GET”方式以及请求地址带上“/tenants”发送的请求绑定到处理控制器tenant_controller。</div><div class="line">        mapper.connect(&apos;/tenants&apos;,</div><div class="line">                       controller=tenant_controller,</div><div class="line">                       # 指定控制器中处理的函数</div><div class="line">                       action=&apos;get_projects_for_token&apos;,</div><div class="line">                       # 指定请求发送的方式</div><div class="line">                       conditions=dict(method=[&apos;GET&apos;]))</div></pre></td></tr></table></figure>
+<p>在“Public”类中的add_routes函数中清楚的定义了，当API请求地址为“/tenants”时并且请求是以“GET”的方式发送过来，调用控制器为tenant_controller中的“get_projects_for_token”函数，tenant_controller控制器指的是controllers.TenantAssignment()，至于如何加载这个路由规则后续的文章讲逐步说明。</p>
+<p>控制器处理函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">/keystone/keystone/assignment/controllers.py</div><div class="line">@dependency.requires(&apos;assignment_api&apos;, &apos;identity_api&apos;, &apos;token_provider_api&apos;)</div><div class="line">class TenantAssignment(controller.V2Controller):</div><div class="line">    &quot;&quot;&quot;V2 Tenant api处理类。&quot;&quot;&quot;</div><div class="line"></div><div class="line">    @controller.v2_auth_deprecated</div><div class="line">    def get_projects_for_token(self, context, **kw):</div><div class="line">        &quot;&quot;&quot;获取基于用于认证令牌令牌有效的租户。</div><div class="line"></div><div class="line">        从上下文获取令牌，验证它并得到有效租户令牌中的用户。</div><div class="line"></div><div class="line">        &quot;&quot;&quot;</div><div class="line">        token_ref = utils.get_token_ref(context)</div><div class="line"></div><div class="line">        # 获取tenant 列表</div><div class="line">        tenant_refs = (</div><div class="line">            self.assignment_api.list_projects_for_user(token_ref.user_id))</div><div class="line"></div><div class="line">        # project_ref从V3到V2转换， 该方法只适用于project_refs从2.0控制器返回</div><div class="line">        # 如果ref是列表类型，我们将通过每个元素反复做转换。</div><div class="line">        tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs</div><div class="line">                       if ref[&apos;domain_id&apos;] == CONF.identity.default_domain_id]</div><div class="line">        params = &#123;</div><div class="line">            &apos;limit&apos;: context[&apos;query_string&apos;].get(&apos;limit&apos;),</div><div class="line">            &apos;marker&apos;: context[&apos;query_string&apos;].get(&apos;marker&apos;),</div><div class="line">        &#125;</div><div class="line">        # 格式v2样式项目列表,包括标记/限制。</div><div class="line">        return self.format_project_list(tenant_refs, **params)</div></pre></td></tr></table></figure>
+<p>这里涉及比较重要的三个方法调用：</p>
+<p>1、/keystone/keystone/assignment/core.py：list_projects_for_user():<br>获取project_ref，即tenants</p>
+<p>2、/keystone/keystone/common/controller.py：v3_to_v2_project():<br>project_ref从V3到V2转换。</p>
+<p>3、/keystone/keystone/common/controller.py：format_project_list()<br>转换v2样式项目列表,包括标记/限制。</p>
+<p>这里重点讲一下1和3，</p>
+<h4 id="获取project-ref，即tenants"><a href="#获取project-ref，即tenants" class="headerlink" title="获取project_ref，即tenants"></a>获取project_ref，即tenants</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">/keystone/keystone/assignment/core.py</div><div class="line"># TODO(henry-nash): We might want to consider list limiting this at some</div><div class="line">    # point in the future.</div><div class="line">    def list_projects_for_user(self, user_id, hints=None):</div><div class="line">        assignment_list = self.list_role_assignments(</div><div class="line">            user_id=user_id, effective=True)</div><div class="line">        # Use set() to process the list to remove any duplicates</div><div class="line">        project_ids = list(set([x[&apos;project_id&apos;] for x in assignment_list</div><div class="line">                                if x.get(&apos;project_id&apos;)]))</div><div class="line">        return self.resource_api.list_projects_from_ids(list(project_ids))</div></pre></td></tr></table></figure>
+<p>这个函数比较复杂，在这里不进行代码分析，后续有用到在具体进行分析，你只需要了解到，这个方法最终将返回tenants 列表。</p>
+<h4 id="默认分页的实现"><a href="#默认分页的实现" class="headerlink" title="默认分页的实现"></a>默认分页的实现</h4><p>让我们回到class TenantAssignment(), 看下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">/keystone/keystone/assignment/controllers.py</div><div class="line">......</div><div class="line">params = &#123;</div><div class="line">            &apos;limit&apos;: context[&apos;query_string&apos;].get(&apos;limit&apos;),</div><div class="line">            &apos;marker&apos;: context[&apos;query_string&apos;].get(&apos;marker&apos;),</div><div class="line">        &#125;</div><div class="line">        return self.format_project_list(tenant_refs, **params)</div></pre></td></tr></table></figure></p>
+<p>这部分代码把分页用到的参数：limit、marker 、以及tenant_refs传入到self.format_project_list() 实现分页,但是可以这里知道Mitaka版本的horizon并没有在把limit、marker 参数传递过来，因此分页并没有起作用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">keystone/keystone/common/controller.py(384)format_project_list()</div><div class="line"></div><div class="line">    def format_project_list(self, tenant_refs, **kwargs):</div><div class="line">        &quot;&quot;&quot;Format a v2 style project list, including marker/limits.&quot;&quot;&quot;</div><div class="line">        # 获取horizon传递过来的marker值，该值表示的是上一页最后一条记录的ID值或者最后一条记录的ID值</div><div class="line">        marker = kwargs.get(&apos;marker&apos;)</div><div class="line">        # 初始化下一页数据或上一个数据从什么位置开始取</div><div class="line">        first_index = 0 </div><div class="line">        if marker is not None:</div><div class="line">            # 循环确定marker ID表示的记录位置，</div><div class="line">            for (marker_index, tenant) in enumerate(tenant_refs):</div><div class="line">                if tenant[&apos;id&apos;] == marker:</div><div class="line">                    # we start pagination after the marker</div><div class="line">                    # 通过比对marker值，确定下一页数据或者上一页数据从first_index位置开始取</div><div class="line">                    first_index = marker_index + 1</div><div class="line">                    break</div><div class="line">            else:</div><div class="line">                msg = _(&apos;Marker could not be found&apos;)</div><div class="line">                raise exception.ValidationError(message=msg)</div><div class="line">        # limit 表示取几条记录</div><div class="line">        limit = kwargs.get(&apos;limit&apos;)</div><div class="line">        last_index = None</div><div class="line">        if limit is not None:</div><div class="line">            try:</div><div class="line">                limit = int(limit)</div><div class="line">                if limit &lt; 0:</div><div class="line">                    raise AssertionError()</div><div class="line">            except (ValueError, AssertionError):</div><div class="line">                msg = _(&apos;Invalid limit value&apos;)</div><div class="line">                raise exception.ValidationError(message=msg)</div><div class="line">            # 确定分页取到第几条记录的位置</div><div class="line">            last_index = first_index + limit</div><div class="line">        # 通过列表切片的形式进行分页，这里可以看到没有实现真正的数据库分页，</div><div class="line">        # 还是一种简单的分页，这种分页比前段分页就是降低了请求返回的数据包大小</div><div class="line">        tenant_refs = tenant_refs[first_index:last_index]</div><div class="line"></div><div class="line">        for x in tenant_refs:</div><div class="line">            if &apos;enabled&apos; not in x:</div><div class="line">                x[&apos;enabled&apos;] = True</div><div class="line">        o = &#123;&apos;tenants&apos;: tenant_refs,</div><div class="line">             &apos;tenants_links&apos;: []&#125;</div><div class="line">        return o</div></pre></td></tr></table></figure>
+<p>具体分析可以看我的代码注释，这一块没有起到正真的分页，只是一种伪分页，没有实现数据库分页机制，在性能上并没有提升多少。</p>
+<h3 id="实现项目列表分页"><a href="#实现项目列表分页" class="headerlink" title="实现项目列表分页"></a>实现项目列表分页</h3><p>OK，说了这么多，接下来我就来讲讲怎么通过扩展API接口来实现项目组列表的分页，时间仓促以及个人理解有限，编码格式可能并不是标准规范请谅解。</p>
+<h3 id="Horizon"><a href="#Horizon" class="headerlink" title="Horizon:"></a>Horizon:</h3><p>openstack_dashboard/dashboards/identity/projects/views.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">class IndexView(tables.DataTableView):</div><div class="line">....</div><div class="line">def has_more_data(self, table):</div><div class="line">        # author: jpzhang.ht@gmail.com</div><div class="line">        # blog: http://www.smallartisan.site/ or http://blog.csdn.net/u011521019</div><div class="line">        # 返回True/False，table根据返回值显示是否有下一页的按钮链接</div><div class="line">        return self._more</div><div class="line"></div><div class="line">def has_prev_data(self, table):</div><div class="line">   # author: jpzhang.ht@gmail.com</div><div class="line">   # blog: http://www.smallartisan.site/ or http://blog.csdn.net/u011521019</div><div class="line">   # 返回True/False，table根据返回值显示是否有上一页的按钮链接</div><div class="line">   return self._prev</div><div class="line">....</div><div class="line"></div><div class="line"></div><div class="line">def get_data(self):</div><div class="line">#获取prev_pagination_param，该值指的是当前页面第一条tenant的ID值</div><div class="line">        prev_marker = self.request.GET.get(</div><div class="line">            project_tables.TenantsTable._meta.prev_pagination_param, None)</div><div class="line"></div><div class="line">        if prev_marker is not None:</div><div class="line">            marker = prev_marker</div><div class="line">        else:</div><div class="line">            # 获取request.GET对象中“tenant_marker”值，该值指的是当前页面最后一条tenant的ID值</div><div class="line">            marker = self.request.GET.get(</div><div class="line">                project_tables.TenantsTable._meta.pagination_param, None)</div><div class="line">        # 根据是否是上一页还是下一页，得到一个布尔值</div><div class="line">        reversed_order = prev_marker is not None</div><div class="line">        tenants = []</div><div class="line">        # 权限判断，判断当前用户时候有identity:list_projects、list_user_projects权限，</div><div class="line">        if policy.check(((&quot;identity&quot;, &quot;identity:list_projects&quot;),),</div><div class="line">                        self.request):</div><div class="line">            domain_context = api.keystone.get_effective_domain_id(self.request)</div><div class="line">            # paginate 参数用来设置是否采用分页</div><div class="line">            try:</div><div class="line">                tenants, self._more, self._prev = api.keystone.tenant_list_paged(</div><div class="line">                    self.request,</div><div class="line">                    domain=domain_context,</div><div class="line">                    paginate=True,</div><div class="line">                    marker=marker,</div><div class="line">                    sort_dir=&apos;asc&apos;, # 排序</div><div class="line">                    sort_key=&apos;id&apos;, # 排序字段</div><div class="line">                    reversed_order=reversed_order)</div><div class="line">            except Exception:</div><div class="line">                self._prev = self._more = False</div><div class="line">                exceptions.handle(self.request,</div><div class="line">                                  _(&quot;Unable to retrieve project list.&quot;))</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>这块的代码比较简单，def has_more_data(self, table)；def has_prev_data(self, table)定义两个属性值用来表示列表是否有上一页数据还是有下一页数据，根据返回的数据长度来确定，获取N＋1条数据，其中N表示每页显示的数据，每次取数据都多取一条记录用来判断是否有上一页数据还是有下一页数据。</p>
+<p>prev_marker／marker用来获取点击上一页或者下一页的时候URL路径上表示的project ID值，这个值用来干什么上面已有介绍，这里不再叙述。</p>
+<p>tenant_list_paged(),这个方法是自己定义的主要用来调用keystoneclient发起request请求，向keystone获取project的数据。其中有几个参数在这个说明下：</p>
+<ul>
+<li>paginate:用来表示是否采用分页机制来获取数据，默认是True，采用分页。</li>
+<li>marker:用来传递点击上一页或者下一页时，当前页面第一条或者最后一条project ID值。</li>
+<li>sort_dir:用来指定数据库获取数据时排序，如果是点击下一页数据库获取数据排序是“acs”，上一页时“desc”排序</li>
+<li>sort_key:用来指定排序字段，默认是project “id”值</li>
+</ul>
+<p>openstack_dashboard/api/keystone.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">def tenant_list_paged(request, paginate=False, marker=None, domain=None, user=None,</div><div class="line">                admin=True, filters=None, sort_key=&quot;name&quot;, sort_dir=&quot;desc&quot;,</div><div class="line">                      reversed_order=False):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    author: jpzhang.ht@gmail.com</div><div class="line">    blog: http://www.smallartisan.site/ or http://blog.csdn.net/u011521019</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    has_more_data = False</div><div class="line">    has_prev_data = False</div><div class="line">    manager = VERSIONS.get_project_manager(request, admin=admin)</div><div class="line"></div><div class="line">    limit = None</div><div class="line">    page_size = utils.get_page_size(request)</div><div class="line"></div><div class="line">    # 判断是否进行分页，如果分页从底层抓取数据的数据的时候夺取一条，用来判断是否还有更多的数据，用于判断是否显示下一页</div><div class="line">    if paginate:</div><div class="line">        if reversed_order:</div><div class="line">            sort_dir = &apos;desc&apos; if sort_dir == &apos;asc&apos; else &apos;asc&apos;</div><div class="line">        limit = page_size + 1</div><div class="line"></div><div class="line">    # if requesting the projects for the current user,</div><div class="line">    # return the list from the cache</div><div class="line">    if user == request.user.id:</div><div class="line">        tenants = request.user.authorized_tenants</div><div class="line"></div><div class="line">    elif VERSIONS.active &lt; 3:</div><div class="line">        # 判断keystone API 接口版本，这里使用的是2.0接口</div><div class="line">        tenants = manager.list_paged(limit, marker, sort_key=sort_key, sort_dir=sort_dir)</div><div class="line"></div><div class="line">    # V3 API 这里主要通过V2API 来讲解，故此不对V3 API进行扩展</div><div class="line">    else:</div><div class="line">        domain_id = get_effective_domain_id(request)</div><div class="line">        kwargs = &#123;</div><div class="line">            &quot;domain&quot;: domain_id,</div><div class="line">            &quot;user&quot;: user</div><div class="line">        &#125;</div><div class="line">        if filters is not None:</div><div class="line">            kwargs.update(filters)</div><div class="line">        tenants = manager.list(**kwargs)</div><div class="line"></div><div class="line">    tenants, has_more_data, has_prev_data = update_pagination(</div><div class="line">        tenants, page_size, marker, sort_dir, sort_key, reversed_order)</div><div class="line"></div><div class="line">    return (tenants, has_more_data, has_prev_data)</div></pre></td></tr></table></figure>
+<p>添加调用keystoneclient方法，其中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if paginate:</div><div class="line">        if reversed_order:</div><div class="line">            sort_dir = &apos;desc&apos; if sort_dir == &apos;asc&apos; else &apos;asc&apos;</div><div class="line">        limit = page_size + 1</div></pre></td></tr></table></figure>
+<p>根据paginate 和 reversed_order参数来确定获取数据时采用的排序方式。limit以及获取多少条数据。</p>
+<p>manager.list_paged()自定义在keystoneclient的函数，用来发起request请求的函数。</p>
+<p>update_pagination()函数，根据返回的数据长度设置has_more_data，has_prev_data属性值，如果是上一页数据，需要根据排序（“acs”／“desc”）反转排序处理，保证显示数据顺序正常，这种分页有一个弊端就是对每一个数据显示的顺序有依赖性，因为底层是用过传递过去ID来确定该条记录在数据库中的位置，以此来获取上一页或者下一页的数据。如果不怕麻烦可以通过django的Paginator分页模块，传递参数（当前页数、每页显示多少条记录）到底层进行分页，这种实现机制或更好一些，这里不再具体来说明，要实现页时比较简单。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">def update_pagination(entities, page_size, marker, sort_dir, sort_key,</div><div class="line">                      reversed_order):</div><div class="line">    has_more_data = has_prev_data = False</div><div class="line">    if len(entities) &gt; page_size:</div><div class="line">        has_more_data = True</div><div class="line">        entities.pop()</div><div class="line">        if marker is not None:</div><div class="line">            has_prev_data = True</div><div class="line">    # first page condition when reached via prev back</div><div class="line">    elif reversed_order and marker is not None:</div><div class="line">        has_more_data = True</div><div class="line">    # last page condition</div><div class="line">    elif marker is not None:</div><div class="line">        has_prev_data = True</div><div class="line"></div><div class="line">    # restore the original ordering here</div><div class="line">    if reversed_order:</div><div class="line">        entities = sorted(entities, key=lambda entity:</div><div class="line">                          (getattr(entity, &apos;id&apos;) or &apos;&apos;).lower(),</div><div class="line">                          reverse=(sort_dir == &apos;asc&apos;))</div><div class="line"></div><div class="line">    return entities, has_more_data, has_prev_data</div></pre></td></tr></table></figure>
+<h3 id="Keystoneclient"><a href="#Keystoneclient" class="headerlink" title="Keystoneclient:"></a>Keystoneclient:</h3><p>keystoneclient的修改比较简单，这里我们API接口用的是V2.0，因此我们只需要修改V2.0即可。<br>keystoneclient/v2_0/tenants.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">class TenantManager(base.ManagerWithFind):</div><div class="line">......</div><div class="line">    def list_paged(self, limit=None, marker=None, sort_key=None, sort_dir=None):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        author: jpzhang.ht@gmail.com</div><div class="line">        blog: http://www.smallartisan.site/ or http://blog.csdn.net/u011521019</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        # 组拼参数</div><div class="line">        params = &#123;&#125;</div><div class="line">        if limit:</div><div class="line">            params[&apos;limit&apos;] = limit</div><div class="line">        if marker:</div><div class="line">            params[&apos;marker&apos;] = marker</div><div class="line">        if sort_key:</div><div class="line">            params[&apos;sort_key&apos;] = sort_key</div><div class="line">        if sort_dir:</div><div class="line">            params[&apos;sort_dir&apos;] = sort_dir</div><div class="line"></div><div class="line">        query = &quot;&quot;</div><div class="line">        if params:</div><div class="line">            query = &quot;?&quot; + urllib.parse.urlencode(params)</div><div class="line"></div><div class="line">        try:</div><div class="line">            tenant_list = self._list(&apos;/tenants/paged%s&apos; % query, &apos;tenants&apos;)</div><div class="line">        except exceptions.EndpointNotFound:</div><div class="line">            endpoint_filter = &#123;&apos;interface&apos;: auth.AUTH_INTERFACE&#125;</div><div class="line">            tenant_list = self._list(&apos;/tenants%s&apos; % query, &apos;tenants&apos;,</div><div class="line">                                     endpoint_filter=endpoint_filter)</div><div class="line"></div><div class="line">        return tenant_list</div></pre></td></tr></table></figure>
+<p>keystoneclient 中在class TenantManager(base.ManagerWithFind)类中扩展def list_paged()函数，组拼GET请求发送的参数，以及GET请求发送的请求地址“/tenants/paged”，这个地址即为自己在keystone中自己扩展的API请求接口。</p>
+<h3 id="Keystone"><a href="#Keystone" class="headerlink" title="Keystone:"></a>Keystone:</h3><p>keystone 处理tenants的逻辑代码主要放在/keystone/assignment中，本文不具体介绍keystone的目录结构以及代码逻辑，仅说明扩展接口完成tenants分页数据的展示。<br>keystone/assignment/routers.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">class Admin(wsgi.ComposableRouter):</div><div class="line">    def add_routes(self, mapper):</div><div class="line">        # add by jpzhang.ht@gmail.com 2016/08/20</div><div class="line">        mapper.connect(&apos;/tenants/paged&apos;,</div><div class="line">                       controller=tenant_controller,</div><div class="line">                       action=&apos;get_projects_for_token_paged&apos;,</div><div class="line">                       conditions=dict(method=[&apos;GET&apos;]))</div><div class="line">.....</div></pre></td></tr></table></figure>
+<p>定义请求路由映射，即请求地址为“/tenants/paged”，调用的控制器为“tenant_controller”，处理的函数为“get_projects_for_token_paged”，这里主要是请求路由与控制器处理函数建立映射关系。</p>
+<p>在控制器中定义“get_projects_for_token_paged”处理函数:<br>keystone/assignment/controllers.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">class TenantAssignment(controller.V2Controller):</div><div class="line">@controller.v2_auth_deprecated</div><div class="line">    def get_projects_for_token_paged(self, context, **kw):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        add by jpzhang.ht@gmail.com 2016/08/18</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        token_ref = utils.get_token_ref(context)</div><div class="line">        params = &#123;</div><div class="line">            &apos;limit&apos;: context[&apos;query_string&apos;].get(&apos;limit&apos;),</div><div class="line">            &apos;marker&apos;: context[&apos;query_string&apos;].get(&apos;marker&apos;),</div><div class="line">            &apos;sort_key&apos;: context[&apos;query_string&apos;].get(&apos;sort_key&apos;),</div><div class="line">            &apos;sort_dir&apos;: context[&apos;query_string&apos;].get(&apos;sort_dir&apos;),</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        tenant_refs = (</div><div class="line">            self.assignment_api.list_projects_for_user_paged(user_id=token_ref.user_id, params=params))</div><div class="line">        </div><div class="line">        # tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs</div><div class="line">        #                if ref[&apos;domain_id&apos;] == CONF.identity.default_domain_id]</div><div class="line"></div><div class="line">        return self.format_project_list(tenant_refs)</div></pre></td></tr></table></figure>
+<p>组拼GET过来的参数，self.assignment_api.list_projects_for_user_paged()函数过去tenants数据。</p>
+<p>keystone/assignment/core.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class Manager(manager.Manager):</div><div class="line">    def list_projects_for_user_paged(self, user_id, params=None):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        add by jpzhang.ht@gmail.com 2016/08/20</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        return self.driver.list_projects_for_user_paged(user_id=user_id, params=params)</div></pre></td></tr></table></figure>
+<p>这里调用相应的driver获取数据，这里只针对sql进行扩展，对ldap、kvs不做扩展。</p>
+<p>keystone/assignment/backends/sql.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">class Assignment(keystone_assignment.AssignmentDriverV9):</div><div class="line">......</div><div class="line">    def list_projects_for_user_paged(self, role_id=None,</div><div class="line">                              user_id=None, group_ids=None,</div><div class="line">                              domain_id=None, project_ids=None,</div><div class="line">                              inherited_to_projects=None, params=None):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        add by jpzhang.ht@gmail.com 2016/08/18</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        with sql.session_for_read() as session:</div><div class="line">            marker_row = None</div><div class="line">            if params.has_key(&apos;marker&apos;):</div><div class="line">                marker_row = session.query(Project).filter_by(id=params[&apos;marker&apos;]).first()</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">            query = session.query(Project)</div><div class="line">            query = sqlalchemyutils.paginate_query(query,</div><div class="line">                                   Project, params[&apos;limit&apos;],</div><div class="line">                                   [params[&apos;sort_key&apos;]],</div><div class="line">                                   marker=marker_row,</div><div class="line">                                   sort_dir=params[&apos;sort_dir&apos;])</div><div class="line"></div><div class="line">            return query.all()</div></pre></td></tr></table></figure>
+<p>获取数据库中对应的记录，其中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">marker_row = session.query(Project).filter_by(id=params[&apos;marker&apos;]).first()</div></pre></td></tr></table></figure>
+<p>根据传递过来的tenants id值获取这条记录在数据库中的位置，如果上一页倒序获取数据，原理简单推算下你就会明白为什么上页数据是倒序取。<br>当然这里我写的比较暴力，之前考虑过沿用其目前的获取数据的方式，但发现最后因为上一页、下一页数据对传递过来的ID值依赖性比较强，并且“RoleAssignment”这张表tenants ID值并不是主键，将会导致根据marker值获取数据的记录将会不准，因此我这边直接去获取project这张表中的数据。<br>重启keystone，apache即可查看分页已经实现：<br><img src="/2017/02/26/2017022605/p3.png" alt="p3.png" title="">￼￼</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>通过keystone tenant项目列表的分页，其实可以看出openstack的当前的分页现状，目前我这边方式实现分页比较暴力，如果想在其他组件上通过这种方式也是可行的例如镜像、配置模版等，不过需要经过测试是否可行，我这里就不在具体说明，如果大家有其他好的方式可以告知我，互相学习。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenStack/" rel="tag"># OpenStack</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/26/2017022604/" rel="next" title="Python 数据结构和算法">
+                <i class="fa fa-chevron-left"></i> Python 数据结构和算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/26/2017022606/" rel="prev" title="Keystone Mitaka Tenants 分页代码下载">
+                Keystone Mitaka Tenants 分页代码下载 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Keystone-分页历史"><span class="nav-number">2.</span> <span class="nav-text">二、Keystone 分页历史</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、分页实现"><span class="nav-number">3.</span> <span class="nav-text">三、分页实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#项目列表代码分析"><span class="nav-number">3.1.</span> <span class="nav-text">项目列表代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#获取project-ref，即tenants"><span class="nav-number">3.1.1.</span> <span class="nav-text">获取project_ref，即tenants</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#默认分页的实现"><span class="nav-number">3.1.2.</span> <span class="nav-text">默认分页的实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现项目列表分页"><span class="nav-number">3.2.</span> <span class="nav-text">实现项目列表分页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Horizon"><span class="nav-number">3.3.</span> <span class="nav-text">Horizon:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keystoneclient"><span class="nav-number">3.4.</span> <span class="nav-text">Keystoneclient:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keystone"><span class="nav-number">3.5.</span> <span class="nav-text">Keystone:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
