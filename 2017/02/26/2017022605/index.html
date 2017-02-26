@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p1.png">
 <meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p2.png">
 <meta property="og:image" content="http://yoursite.com/2017/02/26/2017022605/p3.png">
-<meta property="og:updated_time" content="2017-02-26T10:21:27.009Z">
+<meta property="og:updated_time" content="2017-02-26T10:34:42.741Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OpenStack Mitaka keystone 分页（pagination）实现">
 <meta name="twitter:description" content="一、写在前面这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.co">
@@ -362,7 +362,7 @@
       
 
       
-        <h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。<br>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="http://www.smallartisan.site/" target="_blank" rel="external">http://www.smallartisan.site/</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a><br>代码下载：<a href="http://www.smallartisan.site/?p=97" target="_blank" rel="external">http://www.smallartisan.site/?p=97</a><br><a id="more"></a>￼</p>
+        <h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>这篇文章主要介绍了OpenStack Mitaka Identity (keystone) 分页的实现，实现的方式比较简单暴力(扩展Keystone API)，但目前已是作者想到的快速便捷实现的一种方式，如果各位有更优的现实方式请告知，相互进行技术交流，因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。<br>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io" target="_blank" rel="external">https://jianpengzhang.github.io</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a><br>代码下载：<a href="https://jianpengzhang.github.io/2017/02/26/2017022606/" target="_blank" rel="external">https://jianpengzhang.github.io/2017/02/26/2017022606/</a><br><a id="more"></a>￼</p>
 <h2 id="二、Keystone-分页历史"><a href="#二、Keystone-分页历史" class="headerlink" title="二、Keystone 分页历史"></a>二、Keystone 分页历史</h2><p>Identity (keystone) 分页早在2013年的时候就被提出，记忆中openstack开发峰会中还专门进行了讨论，时间过的太久记不起来，也懒得查找资料来说明历史，唯独找到<a href="https://blueprints.launchpad.net/keystone/+spec/pagination-backend-support" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/pagination-backend-support</a>，这个页面记录着在13年的时候扩展Identity (keystone)，尽可能提高伸缩和性能被当作为一个Blueprints记录着，其中<a href="https://blueprints.launchpad.net/keystone/+spec/filtering-backend-support" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/filtering-backend-support</a>表示这个Blueprints在14年有一个里程碑的进展，但是从代码层面看，并没有真正实现底层代码的分页。</p>
 <p><a href="https://blueprints.launchpad.net/keystone/+spec/pagination" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/pagination</a>说明：<br>分页的当前状态是未知的。本该在IceHouse summit会议 “kill pagination” 但是它从未兑现。分页依旧是残留的。</p>
 <p><a href="https://blueprints.launchpad.net/keystone/+spec/user-list-pagination" target="_blank" rel="external">https://blueprints.launchpad.net/keystone/+spec/user-list-pagination</a> 可以看到分页在2015年-09-11重新被提出，但是通过Blueprint information没有里程碑的进展，</p>
