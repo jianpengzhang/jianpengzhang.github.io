@@ -1,0 +1,994 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一、写在前面这篇文章主要介绍了python 内置的数据结构（list、set以及字典），从一些实际的场景中来说明解决方案，主要是阅读《python cookbook》时写下的阅读记录，提高自己在Python开发方面的理解，记录在这里是为了方便可以随时查阅使用。因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.com个人">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 数据结构和算法">
+<meta property="og:url" content="http://yoursite.com/2017/02/26/2017022604/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="一、写在前面这篇文章主要介绍了python 内置的数据结构（list、set以及字典），从一些实际的场景中来说明解决方案，主要是阅读《python cookbook》时写下的阅读记录，提高自己在Python开发方面的理解，记录在这里是为了方便可以随时查阅使用。因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.com个人">
+<meta property="og:updated_time" content="2017-04-16T11:10:29.961Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python 数据结构和算法">
+<meta name="twitter:description" content="一、写在前面这篇文章主要介绍了python 内置的数据结构（list、set以及字典），从一些实际的场景中来说明解决方案，主要是阅读《python cookbook》时写下的阅读记录，提高自己在Python开发方面的理解，记录在这里是为了方便可以随时查阅使用。因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。邮箱地址：jpzhang.ht@gmail.com个人">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/26/2017022604/"/>
+
+
+
+
+
+  <title> Python 数据结构和算法 | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/26/2017022604/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python 数据结构和算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-26T17:57:59+08:00">
+                2017-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>这篇文章主要介绍了python 内置的数据结构（list、set以及字典），从一些实际的场景中来说明解决方案，主要是阅读《python cookbook》时写下的阅读记录，提高自己在Python开发方面的理解，记录在这里是为了方便可以随时查阅使用。因为时间仓促以及个人理解有限，固有错误的地方请指出，谢谢！ 如果转载，请保留作者信息。<br>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io" target="_blank" rel="external">https://jianpengzhang.github.io</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a><br><a id="more"></a>￼</p>
+<h2 id="二、将序列分解为单独的变量"><a href="#二、将序列分解为单独的变量" class="headerlink" title="二、将序列分解为单独的变量"></a>二、将序列分解为单独的变量</h2><p>任何序列（或可迭代的对象）都可以通过一个简单的赋值操作作为分解为单独的变量。唯一的要求是变量的总数和结构要与序列相吻合。</p>
+<p>例如1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; p = (1, 2)</div><div class="line">&gt;&gt;&gt; x, y = p</div><div class="line">&gt;&gt;&gt; x</div><div class="line">1</div><div class="line">&gt;&gt;&gt; y</div><div class="line">2</div><div class="line">&gt;&gt;&gt; data = [&apos;jpzhang&apos;, 88, 99, (2016, 06, 15)]</div><div class="line">&gt;&gt;&gt; name, shares, price, date = data</div><div class="line">&gt;&gt;&gt; name</div><div class="line">&apos;jpzhang&apos;</div><div class="line">&gt;&gt;&gt; date</div><div class="line">(2016, 06, 15)</div><div class="line">&gt;&gt;&gt; name, shares, price, (year, mon, day) = data</div><div class="line">&gt;&gt;&gt; day</div><div class="line">15</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
+<p>如果元素的数量不匹配，将会得到一个错误的提示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; p = (1, 2)</div><div class="line">&gt;&gt;&gt; x, y, z = p</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</div><div class="line">ValueError: need more than 2 values to unpack</div></pre></td></tr></table></figure>
+<p>例如2：除了列表元祖，还包括字符串、文件、迭代器只要是可迭代对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; str = &quot;Hello World&quot;</div><div class="line">&gt;&gt;&gt; a, b, c, d, e, f, g, h, i, j, k = str</div><div class="line">&gt;&gt;&gt; a</div><div class="line">&apos;H&apos;</div><div class="line">&gt;&gt;&gt; b</div><div class="line">&apos;e&apos;</div><div class="line">&gt;&gt;&gt; g</div><div class="line">&apos;W&apos;</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
+<p>例如3：去除特定列表中的值,把不需要的值存放到不会用到的变量上，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; data = [&apos;jpzhang&apos;, 88, 99, (2016, 06, 15)]</div><div class="line">&gt;&gt;&gt; _, shares, price, _ = data</div><div class="line">&gt;&gt;&gt; _</div><div class="line">(2016, 6, 15)</div><div class="line">&gt;&gt;&gt; shares</div><div class="line">88</div></pre></td></tr></table></figure>
+<h2 id="三、从任意长度的可迭代对象中分解元素"><a href="#三、从任意长度的可迭代对象中分解元素" class="headerlink" title="三、从任意长度的可迭代对象中分解元素"></a>三、从任意长度的可迭代对象中分解元素</h2><p>从一个可迭代对象中分解出N个元素，可迭代对象的长度可能超过N，实现方式，通过Python的“＊表达式”，<br>例如：需要python3支持，python2.7不支持</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line"></div><div class="line">import numpy</div><div class="line"></div><div class="line">def avg(l):</div><div class="line">    return float(sum(l))/max(len(l),1)</div><div class="line"></div><div class="line">def drop_first_last(grades):</div><div class="line">    # first, *middle, last = grades  --- python3.0</div><div class="line">    middle = grades[1:-1] # --- python2.7</div><div class="line">    return numpy.mean(middle) # or def avg()</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    grades = [1, 2, 3, 4, 5]</div><div class="line">    grades_avg = drop_first_last(grades)</div><div class="line">    print grades_avg</div></pre></td></tr></table></figure>
+<h2 id="四、保留最后N个元素"><a href="#四、保留最后N个元素" class="headerlink" title="四、保留最后N个元素"></a>四、保留最后N个元素</h2><p>在迭代或者是其他形式的处理过程中对最后几项记录做一个有限的历史纪录统计。<br>例如：下面的代码对一系列文本行做简单的文本匹配操作，当发现有匹配（python）字符数时就输出当前的匹配行，以及最近前面检查过的N行文本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">from collections import deque</div><div class="line"></div><div class="line">def search(lines, pattern, history=5):</div><div class="line">    previons_line = deque(maxlen=history)</div><div class="line">    for line in lines:</div><div class="line">        if pattern in line:</div><div class="line">            yield line, previons_line</div><div class="line">        previons_line.append(line)</div><div class="line"></div><div class="line"></div><div class="line"># Example use on a file</div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    with open(&apos;./somefile.txt&apos;) as f:</div><div class="line">        for line, prevlines in search(f, &apos;python&apos;, 5):</div><div class="line">            for pline in prevlines:</div><div class="line">                print(pline, &quot;end=&apos;&apos;&quot;)</div><div class="line">            print(line, &quot;end=&apos;&apos;&quot;)</div><div class="line">            print(&apos;-&apos;*20)</div></pre></td></tr></table></figure>
+<p>yield 的作用就是把一个函数变成一个 generator，带有 yield 的函数不再是一个普通函数，Python 解释器会将其视为一个 generator，调用 search() 不会执行 search() 函数，而是返回一个 iterable 对象！在 for 循环执行时，每次循环都会执行 search() 函数内部的代码，执行到 yield line, previons_line 时，fab 函数就返回一个迭代值，下次迭代时，代码从 yield line, previons_line 的下一条语句继续执行，而函数的本地变量看起来和上次中断执行前是完全一样的，于是函数继续执行，直到再次遇到 yield。</p>
+<p>如同上面的代码片段所做的一样，当编写搜索某项纪录的代码时，通常会用到含有yield关键字的生成器迭代函数。这将处理搜索过程的代码和使用搜索结果的代码成功解耦开来。</p>
+<p>deque(maxlen=N) 创建了一个固定长度的队列，当有新的记录加入而队列已满时会自动移动除最老的那条记录。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; from collections import deque</div><div class="line">&gt;&gt;&gt; q = deque(maxlen=3)</div><div class="line">&gt;&gt;&gt; q.append(1)</div><div class="line">&gt;&gt;&gt; q.append(2)</div><div class="line">&gt;&gt;&gt; q.append(3)</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([1, 2, 3], maxlen=3)</div><div class="line">&gt;&gt;&gt; q.append(4)</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([2, 3, 4], maxlen=3)</div><div class="line">&gt;&gt;&gt; q.append(5)</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([3, 4, 5], maxlen=3)</div></pre></td></tr></table></figure>
+<p>虽然通过列表操作（append、del）也能够完成deque的功能，但是队列的这种解决方案要更优雅的多，运行速度也将更快。如果deque不指定队列长度，将得到一个无界限的队列，可以在两端执行添加和弹出操作，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; from collections import deque</div><div class="line">&gt;&gt;&gt; q = deque()</div><div class="line">&gt;&gt;&gt; q.append(1)</div><div class="line">&gt;&gt;&gt; q.append(2)</div><div class="line">&gt;&gt;&gt; q.append(3)</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([1, 2, 3])</div><div class="line">&gt;&gt;&gt; q.appendleft(4)</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([4, 1, 2, 3])</div><div class="line">&gt;&gt;&gt; q.pop()</div><div class="line">3</div><div class="line">&gt;&gt;&gt; q</div><div class="line">deque([4, 1, 2])</div><div class="line">&gt;&gt;&gt; q.popleft()</div><div class="line">4</div></pre></td></tr></table></figure>
+<p>从队列两端添加或者弹出元素的复杂度都是O(1)。这和列表不同，当从列表的头部插入或者移除元素时，列表的复杂度为O(N)</p>
+<h2 id="五、找到最大或者最小的N个元素"><a href="#五、找到最大或者最小的N个元素" class="headerlink" title="五、找到最大或者最小的N个元素"></a>五、找到最大或者最小的N个元素</h2><p>在集合中查找最大或最小的N个元素。</p>
+<p>heapq 模块中有两个函数——nlargest()和nsmallest()——他们正是我们所需要的。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import heapq</div><div class="line">&gt;&gt;&gt; nums = [1, 8, 2, 23, 7, -4, 18, 23, 42, 37, 2]</div><div class="line">&gt;&gt;&gt; print(heapq.nlargest(3, nums))</div><div class="line">[42, 37, 23]</div><div class="line">&gt;&gt;&gt; print(heapq.nsmallest(3, nums))</div><div class="line">[-4, 1, 2]</div></pre></td></tr></table></figure>
+<p>这两个函数都可以接受一个参数key，从而允许他们可以工作在更加复杂的数据结构之上。<br>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import heapq</div><div class="line">&gt;&gt;&gt; phone = [&#123;&apos;name&apos;: &apos;sanxing&apos;, &apos;shares&apos;: 100, &apos;price&apos;: 100.11&#125;,</div><div class="line">... &#123;&apos;name&apos;: &apos;huawei&apos;, &apos;shares&apos;: 89, &apos;price&apos;: 99.31&#125;,</div><div class="line">... &#123;&apos;name&apos;: &apos;xiaomi&apos;, &apos;shares&apos;: 22, &apos;price&apos;: 89.11&#125;,</div><div class="line">... &#123;&apos;name&apos;: &apos;iphone&apos;, &apos;shares&apos;: 55, &apos;price&apos;: 34.11&#125;]</div><div class="line">&gt;&gt;&gt; cheap = heapq.nsmallest(3, phone, key=lambda s: s[&apos;price&apos;])</div><div class="line">&gt;&gt;&gt; cheap</div><div class="line">[&#123;&apos;price&apos;: 34.11, &apos;name&apos;: &apos;iphone&apos;, &apos;shares&apos;: 55&#125;, &#123;&apos;price&apos;: 89.11, &apos;name&apos;: &apos;xiaomi&apos;, &apos;shares&apos;: 22&#125;, &#123;&apos;price&apos;: 99.31, &apos;name&apos;: &apos;huawei&apos;, &apos;shares&apos;: 89&#125;]</div><div class="line">&gt;&gt;&gt; expensive = heapq.nlargest(3, phone, key=lambda s: s[&apos;price&apos;])</div><div class="line">&gt;&gt;&gt; expensive</div><div class="line">[&#123;&apos;price&apos;: 100.11, &apos;name&apos;: &apos;sanxing&apos;, &apos;shares&apos;: 100&#125;, &#123;&apos;price&apos;: 99.31, &apos;name&apos;: &apos;huawei&apos;, &apos;shares&apos;: 89&#125;, &#123;&apos;price&apos;: 89.11, &apos;name&apos;: &apos;xiaomi&apos;, &apos;shares&apos;: 22&#125;]</div></pre></td></tr></table></figure>
+<p>如果正在寻找最大或者最小的N个元素，且同集合中元素的总数目相比，N很小，那么下面的这些函数可以提供更好的性能。首先这些函数会在底层将数据转化成列表，且元素以堆的顺序排列。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; nums = [1, 8, 2, 23, 7, -4, 18, 23, 42, 37, 37, 2]</div><div class="line">&gt;&gt;&gt; import heapq</div><div class="line">&gt;&gt;&gt; heap = list(nums)</div><div class="line">&gt;&gt;&gt; heapq.heapify(heap)</div><div class="line">&gt;&gt;&gt; heap</div><div class="line">[-4, 7, 1, 23, 8, 2, 18, 23, 42, 37, 37, 2]</div><div class="line">&gt;&gt;&gt; heapq.heappop(heap)</div><div class="line">-4</div><div class="line">&gt;&gt;&gt; heap</div><div class="line">[1, 7, 2, 23, 8, 2, 18, 23, 42, 37, 37]</div><div class="line">&gt;&gt;&gt; heapq.heappop(heap)</div><div class="line">1</div><div class="line">&gt;&gt;&gt; heapq.heappop(heap)</div><div class="line">2</div></pre></td></tr></table></figure>
+<p>当所要找的元素数量相对较小时，函数nlargest()和nsmallest()才是最合适的，如果只是简单的想找出最小或最大的元素（N＝1时），那么用min()和max()会更快。如果N和集合本身的大小差不多大，通常更快的方法是先对集合排序，然后最切片操作（例如，使用sorted(items)[:N]或者sorted(items[-N:])。</p>
+<h2 id="六、实现优先级队列"><a href="#六、实现优先级队列" class="headerlink" title="六、实现优先级队列"></a>六、实现优先级队列</h2><p>实现一个队列，能够以给定的优先级来对元素排序，且每次pop操作时都会返回优先级最高的那个元素。</p>
+<p>heapq模块实现了python中的堆排序，并提供了有关的方法。让用python实现排序算法有了简单的快捷的方式。</p>
+<ul>
+<li>heappush():<br>heapq.heappush(heap, item),将item压入到堆书组中heap中。如果不进行此步操作，后面的heappop失效。</li>
+<li>heappop():<br>heapq.heappop(heap),从堆数组heap中取出最小的值，并返回。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">import heapq</div><div class="line"></div><div class="line">class PriorityQueue:</div><div class="line"></div><div class="line">    def __init__(self):</div><div class="line">        self._queue = []</div><div class="line">        self._index = 0</div><div class="line"></div><div class="line">    def push(self, item, priority):</div><div class="line">        heapq.heappush(self._queue, (-priority, self._index, item))</div><div class="line">        self._index += 1</div><div class="line"></div><div class="line">    def pop(self):</div><div class="line">        return heapq.heappop(self._queue)[-1]</div><div class="line"></div><div class="line">class Item:</div><div class="line">    def __init__(self, name):</div><div class="line">        self.name = name</div><div class="line"></div><div class="line">    def __repr__(self):</div><div class="line">        return (&apos;Item %s&apos;, self.name)</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    q = PriorityQueue()</div><div class="line">    q.push(Item(&apos;foo&apos;), 1)</div><div class="line">    q.push(Item(&apos;bar&apos;), 5)</div><div class="line">    q.push(Item(&apos;spam&apos;), 4)</div><div class="line">    q.push(Item(&apos;grok&apos;), 1)</div><div class="line">    print q.pop().name</div><div class="line">    print(&apos;---------------------&apos;)</div><div class="line">    print q.pop().name</div><div class="line">    print(&apos;---------------------&apos;)</div><div class="line">    print q.pop().name</div><div class="line">    print(&apos;---------------------&apos;)</div><div class="line">    print q.pop().name</div><div class="line">    </div><div class="line">控制台输出：</div><div class="line">bar</div><div class="line">---------------------</div><div class="line">spam</div><div class="line">---------------------</div><div class="line">foo</div><div class="line">---------------------</div><div class="line">grok</div></pre></td></tr></table></figure>
+<p>第一次执行pop() 操作时返回的元素具有最高的优先级,拥有相同优先级的两个元素（foo, grok）返回顺序同他们插入到队列的顺序相同。</p>
+<p>函数heapq.heappush()以及heapq.heappop()分别实现将元素从列表_queue中插入和移除，且保证列表中第一个元素的优先级最低。heappop()方法重视返回“最小”的元素，因此这就是让队列能够弹出真确元素的关键。此外，由于push和pop操作的复杂度都是O(logN),其中N代表堆中元素的数量，因此就算N的值很大，这些操作的效率也非常高。<br>代码中，队列以元组（-priority, index, item）的形式组成。把priority取负指是为了让队列能够按照元素的优先级从高到低的顺序排列。这和正常的堆顺序是相反的，一般情况下堆是按从小到大的顺序排序的。<br>变量index的作用是为了将具有相同优先级的元素以适当的顺序排列。通过维护一个不断递增的索引，元素将以他们入队列时的顺序来排列。但是，index在对具有相同优先级的元素间做比较操作时同样扮演了重要的角色。<br>更多关于heapq的介绍请参考<a href="https://docs.python.org/2/library/heapq.html" target="_blank" rel="external">官方</a></p>
+<h2 id="七、在字典中将多个健映射到多个值上"><a href="#七、在字典中将多个健映射到多个值上" class="headerlink" title="七、在字典中将多个健映射到多个值上"></a>七、在字典中将多个健映射到多个值上</h2><p>将健（key）映射到多个值的字典（即所谓的一键多值字典［multidict］）<br>字典是一种关联容器，每个健都映射到一个单独的值上。如果想让健映射到 多个值，需要将这多个值保存到另一个容器列表或集合中。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">d = &#123;</div><div class="line">    &apos;a&apos;: [1, 2, 3],</div><div class="line">    &apos;b&apos;: [4, 5]</div><div class="line">&#125;</div><div class="line"></div><div class="line">e = &#123;</div><div class="line">    &apos;a&apos;: &#123;1, 2, 3&#125;</div><div class="line">    &apos;b&apos;: &#123;4, 5&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果需要保留元素插入的顺序，就用列表，如果需要消除重复元素（且不在意他们的顺序），就用集合。</p>
+<p>快速方便创建这样的字典，可以利用collections模块中的defaultdict类。 defaultdict的一个特点就是它会自动初始化第一个值，这样只需要关注添加的元素即可。<br>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">from collections import defaultdict</div><div class="line"></div><div class="line">d = defaultdict(list)</div><div class="line"></div><div class="line">d[&apos;a&apos;].append(1)</div><div class="line">d[&apos;a&apos;].append(2)</div><div class="line">d[&apos;b&apos;].append(4)</div><div class="line">print(d)</div><div class="line"></div><div class="line">print(&apos;================================&apos;)</div><div class="line"></div><div class="line">b = defaultdict(set)</div><div class="line">b[&apos;a&apos;].add(1)</div><div class="line">b[&apos;a&apos;].add(2)</div><div class="line">b[&apos;b&apos;].add(4)</div><div class="line"></div><div class="line">print(b)</div><div class="line"></div><div class="line">控制台输出：</div><div class="line">defaultdict(&lt;type &apos;list&apos;&gt;, &#123;&apos;a&apos;: [1, 2], &apos;b&apos;: [4]&#125;)</div><div class="line">================================</div><div class="line">defaultdict(&lt;type &apos;set&apos;&gt;, &#123;&apos;a&apos;: set([1, 2]), &apos;b&apos;: set([4])&#125;)</div></pre></td></tr></table></figure>
+<p>关于defaultdict,需要注意的一个地方是，他会自动创建字典表项以待稍后的访问（即使这些表项当前在字典中还没有找到）。如果不想要这个功能，可以在普通的字典上调用setdefault方法来取代。<br>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">c = &#123;&#125;</div><div class="line">c.setdefault(&apos;a&apos;, []).append(1)</div><div class="line">c.setdefault(&apos;a&apos;, []).append(2)</div><div class="line">c.setdefault(&apos;b&apos;, []).append(3)</div><div class="line"></div><div class="line">print(c[&apos;a&apos;])</div><div class="line"></div><div class="line">输出：</div><div class="line">[1, 2]</div></pre></td></tr></table></figure>
+<p>构建一个一键多值字典是很容易的。但是如果试着自己对第一个值做初始化操作，这就会变的很杂论。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">from collections import defaultdict</div><div class="line"></div><div class="line">d = &#123;&#125;</div><div class="line">for key, value in pairs:</div><div class="line">    if key not in d:</div><div class="line">        d[key] = []</div><div class="line">    d[key].append(value)</div><div class="line"></div><div class="line"># 使用defaultdict后代码会清晰的多：</div><div class="line">d = defaultdict(list)</div><div class="line">for key, value in pairs:</div><div class="line">    d[key].append(value)</div></pre></td></tr></table></figure>
+<h2 id="八、让字典保持有序"><a href="#八、让字典保持有序" class="headerlink" title="八、让字典保持有序"></a>八、让字典保持有序</h2><p>创建一个字典，并且在迭代或序列化这个字典的时候能够控制元素的顺序。<br>控制一个字典中元素的顺序，你可以使用 collections 模块中的 OrderedDict 类。 在迭代操作的时候它会保持元素被插入时的顺序，示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">from collections import OrderedDict</div><div class="line"></div><div class="line">def ordered_dict():</div><div class="line">    d = OrderedDict()</div><div class="line">    d[&apos;foo&apos;] = 1</div><div class="line">    d[&apos;bar&apos;] = 2</div><div class="line">    d[&apos;spam&apos;] = 3</div><div class="line">    d[&apos;grok&apos;] = 4</div><div class="line"></div><div class="line">    # Outputs &quot;foo 1&quot;, &quot;bar 2&quot;, &quot;spam 3&quot;, &quot;grok 4&quot;</div><div class="line">    for key in d:</div><div class="line">        print(key, d[key])</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    ordered_dict()</div><div class="line">    </div><div class="line">控制输出：</div><div class="line">(&apos;foo&apos;, 1)</div><div class="line">(&apos;bar&apos;, 2)</div><div class="line">(&apos;spam&apos;, 3)</div><div class="line">(&apos;grok&apos;, 4)</div></pre></td></tr></table></figure>
+<p>当你构建一个映射结构以便稍后对其做序列化编码成另一种格式时，OrderedDict就显示的特别有用。例如，如果在想进行JSON编码时精确控制各字段的顺序，那么只要首先OrderedDict中构建数据就可以了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import json</div><div class="line">&gt;&gt;&gt; json.dumps(d)</div><div class="line">&apos;&#123;&quot;foo&quot;: 1, &quot;bar&quot;: 2, &quot;spam&quot;: 3, &quot;grok&quot;: 4&#125;&apos;</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
+<p>有可能在你本地调试的时候会报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;/Users/jpzhang/Documents/开发/Python/demo/python cookbook/demo06.py&quot;, line 6, in &lt;module&gt;</div><div class="line">    from collections import OrderedDict</div><div class="line">ImportError: cannot import name OrderedDict</div></pre></td></tr></table></figure>
+<p>网上查阅了下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">http://stackoverflow.com/questions/14358162/funnelweb-error-cannot-import-ordereddict</div><div class="line"></div><div class="line">OrderedDict is a new class added to Python 2.7, so it is missing in your case.</div><div class="line"></div><div class="line">You can install a backport:</div><div class="line"></div><div class="line">pip install ordereddict</div><div class="line">or add that as a dependency in your buildout, and edit Plone/buildout-cache/eggs/transmogrify.webcrawler-1.2.1-py2.6.egg/transmogrify/webcrawler/webcrawler.py line 21 to change the import from:</div><div class="line"></div><div class="line">from collections import OrderedDict</div><div class="line">to</div><div class="line"></div><div class="line">try:</div><div class="line">    from collections import OrderedDict</div><div class="line">except ImportError:</div><div class="line">    # python 2.6 or earlier, use backport</div><div class="line">    from ordereddict import OrderedDict</div><div class="line">I have filed an issue in the funnelweb issue tracker to request that this is added to a future release of the package, see issue 22.</div></pre></td></tr></table></figure>
+<p>OrderedDict 内部维护着一个根据键插入顺序排序的双向链表。每次当一个新的元素插入进来的时候， 它会被放到链表的尾部。对于一个已经存在的键的重复赋值不会改变键的顺序。</p>
+<p>需要注意的是，一个 OrderedDict 的大小是一个普通字典的两倍，因为它内部维护着另外一个链表。 所以如果你要构建一个需要大量 OrderedDict 实例的数据结构的时候(比如读取100,000行CSV数据到一个 OrderedDict 列表中去)， 那么你就得仔细权衡一下是否使用 OrderedDict 带来的好处要大过额外内存消耗的影响。</p>
+<h2 id="九、字典的计算"><a href="#九、字典的计算" class="headerlink" title="九、字典的计算"></a>九、字典的计算</h2><p>在字典上对数据执行各式各样的计算（比如求最小值、最大值、排序等等）<br>例如：假设有一个字典在股票名称和价格间做了映射：<br>为了对字典值执行有用的计算操作，通常需要使用 zip() 函数先将键和值反转过来。 比如，下面是查找最小和最大股票价格和股票值的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">min_price = min(zip(prices.values(), prices.keys()))</div><div class="line"># min_price is (10.75, &apos;FB&apos;)</div><div class="line"></div><div class="line">max_price = max(zip(prices.values(), prices.keys()))</div><div class="line"># max_price is (612.78, &apos;AAPL&apos;)</div></pre></td></tr></table></figure>
+<p>同样，要对数据排序只要使用zip() 再配合sorted()就可以了，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">prices_sorted = sorted(zip(prices.values(), prices.keys()))</div><div class="line"># prices_sorted is [(10.75, &apos;FB&apos;), (37.2, &apos;HPQ&apos;),</div><div class="line">#                   (45.23, &apos;ACME&apos;), (205.55, &apos;IBM&apos;),</div><div class="line">#                   (612.78, &apos;AAPL&apos;)]</div></pre></td></tr></table></figure>
+<p>当进行这些计算时，请注意zip() 创建了一个迭代器，它的内容只能被消费一次。例如下面的代码就是错误的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">prices_and_names = zip(prices.values(), prices.keys())</div><div class="line">print(min(prices_and_names)) # OK</div><div class="line">print(max(prices_and_names)) # ValueError: max() arg is an empty sequence</div></pre></td></tr></table></figure>
+<p>完整示例代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">prices = &#123;</div><div class="line">    &apos;ACME&apos;: 45.23,</div><div class="line">    &apos;AAPL&apos;: 612.78,</div><div class="line">    &apos;IBM&apos;: 205.55,</div><div class="line">    &apos;HPQ&apos;: 37.20,</div><div class="line">    &apos;FB&apos;: 10.75</div><div class="line">&#125;</div><div class="line"></div><div class="line">min_price = min(zip(prices.values(), prices.keys()))</div><div class="line"># min_price is (10.75, &apos;FB&apos;)</div><div class="line"></div><div class="line">max_price = max(zip(prices.values(), prices.keys()))</div><div class="line"># max_price is (612.78, &apos;AAPL&apos;)</div><div class="line"></div><div class="line">print(min_price)</div><div class="line"></div><div class="line">print(&apos;-----------------------------&apos;)</div><div class="line"></div><div class="line">print(max_price)</div><div class="line"></div><div class="line">print(&apos;------------sorted-----------------&apos;)</div><div class="line"></div><div class="line">prices_sorted = sorted(zip(prices.values(), prices.keys()))</div><div class="line"># prices_sorted is [(10.75, &apos;FB&apos;), (37.2, &apos;HPQ&apos;),</div><div class="line">#                   (45.23, &apos;ACME&apos;), (205.55, &apos;IBM&apos;),</div><div class="line">#                   (612.78, &apos;AAPL&apos;)]</div><div class="line">print(prices_sorted)</div><div class="line"></div><div class="line">控制台输出：</div><div class="line">(10.75, &apos;FB&apos;)</div><div class="line">-----------------------------</div><div class="line">(612.77999999999997, &apos;AAPL&apos;)</div><div class="line">------------sorted-----------------</div><div class="line">[(10.75, &apos;FB&apos;), (37.200000000000003, &apos;HPQ&apos;), (45.229999999999997, &apos;ACME&apos;), (205.55000000000001, &apos;IBM&apos;), (612.77999999999997, &apos;AAPL&apos;)]</div></pre></td></tr></table></figure>
+<p>如果你在一个字典上执行普通的数学运算，你会发现它们仅仅作用于键，而不是值。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">min(prices) # Returns &apos;AAPL&apos;</div><div class="line">max(prices) # Returns &apos;IBM&apos;</div></pre></td></tr></table></figure>
+<p>这个结果并不是你想要的，因为你想要在字典的值集合上执行这些计算。 或许你会尝试着使用字典的 values() 方法来解决这个问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">min(prices.values()) # Returns 10.75</div><div class="line">max(prices.values()) # Returns 612.78</div></pre></td></tr></table></figure>
+<p>不幸的是，通常这个结果同样也不是你想要的。 你可能还想要知道对应的键的信息(比如那种股票价格是最低的？)。</p>
+<p>你可以在 min() 和 max() 函数中提供 key 函数参数来获取最小值或最大值对应的键的信息。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">min(prices, key=lambda k: prices[k]) # Returns &apos;FB&apos;</div><div class="line">max(prices, key=lambda k: prices[k]) # Returns &apos;AAPL&apos;</div></pre></td></tr></table></figure>
+<p>但是，如果还想要得到最小值，你又得执行一次查找操作。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">min_value = prices[min(prices, key=lambda k: prices[k])]</div></pre></td></tr></table></figure>
+<p>前面的 zip() 函数方案通过将字典”反转”为(值，键)元组序列来解决了上述问题。 当比较两个元组的时候，值会先进行比较，然后才是键。 这样的话你就能通过一条简单的语句就能很轻松的实现在字典上的求最值和排序操作了。</p>
+<p>需要注意的是在计算操作中使用到了(值，键)对。当多个实体拥有相同的值的时候，键会决定返回结果。 比如，在执行 min() 和 max() 操作的时候，如果恰巧最小或最大值有重复的，那么拥有最小或最大键的实体会返回：<br>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; prices = &#123; &apos;AAA&apos; : 45.23, &apos;ZZZ&apos;: 45.23 &#125;</div><div class="line">&gt;&gt;&gt; min(zip(prices.values(), prices.keys()))</div><div class="line">(45.23, &apos;AAA&apos;)</div><div class="line">&gt;&gt;&gt; max(zip(prices.values(), prices.keys()))</div><div class="line">(45.23, &apos;ZZZ&apos;)</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
+<h2 id="十、查找两字典的相同点"><a href="#十、查找两字典的相同点" class="headerlink" title="十、查找两字典的相同点"></a>十、查找两字典的相同点</h2><p>有两个字典，我们想找出它们中间可能的相同的地方（相同的健、相同的值等）。</p>
+<p>考虑两个字典：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">a = &#123;</div><div class="line">    &apos;x&apos; : 1,</div><div class="line">    &apos;y&apos; : 2,</div><div class="line">    &apos;z&apos; : 3</div><div class="line">&#125;</div><div class="line"></div><div class="line">b = &#123;</div><div class="line">    &apos;w&apos; : 10,</div><div class="line">    &apos;x&apos; : 11,</div><div class="line">    &apos;y&apos; : 2</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>要找出这两个字典中的相同之处，只需要通过keys()或者items()方法执行常见的集合操作即可。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># Find keys in common</div><div class="line">a.keys() &amp; b.keys() # &#123; &apos;x&apos;, &apos;y&apos; &#125;</div><div class="line"># Find keys in a that are not in b</div><div class="line">a.keys() - b.keys() # &#123; &apos;z&apos; &#125;</div><div class="line"># Find (key,value) pairs in common</div><div class="line">a.items() &amp; b.items() # &#123; (&apos;y&apos;, 2) &#125;</div></pre></td></tr></table></figure>
+<p>这些类型的操作也可以用来修改或过滤掉字典中的内容，例如，假设想创建一个新的字典，其中会去掉某些健。下面是使用了字典推导式的代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># Make a new dictionary with certain keys removed</div><div class="line">c = &#123;key:a[key] for key in a.keys() - &#123;&apos;z&apos;, &apos;w&apos;&#125;&#125;</div><div class="line"># c is &#123;&apos;x&apos;: 1, &apos;y&apos;: 2&#125;</div></pre></td></tr></table></figure>
+<p>一个字典就是一个键集合与值集合的映射关系。 字典的 keys() 方法返回一个展现键集合的键视图对象。 键视图的一个很少被了解的特性就是它们也支持集合操作，比如集合并、交、差运算。 所以，如果你想对集合的键执行一些普通的集合操作，可以直接使用键视图对象而不用先将它们转换成一个set。</p>
+<p>字典的 items() 方法返回一个包含(键，值)对的元素视图对象。 这个对象同样也支持集合操作，并且可以被用来查找两个字典有哪些相同的键值对。</p>
+<p>尽管字典的 values() 方法也是类似，但是它并不支持这里介绍的集合操作。 某种程度上是因为值视图不能保证所有的值互不相同，这样会导致某些集合操作会出现问题。 不过，如果你硬要在值上面执行这些集合操作的话，你可以先将值集合转换成set，然后再执行集合运算就行了。</p>
+<h2 id="十一、从序列中移除重复项且保持元素间顺序不变"><a href="#十一、从序列中移除重复项且保持元素间顺序不变" class="headerlink" title="十一、从序列中移除重复项且保持元素间顺序不变"></a>十一、从序列中移除重复项且保持元素间顺序不变</h2><p>我们想去除序列中出现的重复元素，但依旧保持剩下的元素顺序不变</p>
+<p>如果序列上的值都是可哈希（hashable）的，那么可以很简单的利用集合或者生成器来解决这个问题。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">def dedupe(items):</div><div class="line">    seen = set()</div><div class="line">    for item in items:</div><div class="line">        if item not in seen:</div><div class="line">            yield item</div><div class="line">            seen.add(item)</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    a = [1, 5, 2, 1, 9, 1, 5, 10]</div><div class="line">    b = list(dedupe(a))</div><div class="line">    print(b)</div></pre></td></tr></table></figure>
+<p>这个方法仅仅在序列中元素为 hashable 的时候才管用。 如果你想消除元素不可哈希(比如 dict 类型)的序列中重复元素的话，你需要将上述代码稍微改变一下，就像这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/python</div><div class="line"># -*- coding:utf-8 -*- </div><div class="line">__author__ = &apos;jpzhang&apos;</div><div class="line">__sites__ = &apos;http://www.smallartisan.site/&apos;</div><div class="line"></div><div class="line">def dedupe(items, key=None):</div><div class="line">    seen = set()</div><div class="line">    for item in items:</div><div class="line">        val = item if key is None else key(item)</div><div class="line">        if val not in seen:</div><div class="line">            yield item</div><div class="line">            seen.add(val)</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    a = [ &#123;&apos;x&apos;:1, &apos;y&apos;:2&#125;, &#123;&apos;x&apos;:1, &apos;y&apos;:3&#125;, &#123;&apos;x&apos;:1, &apos;y&apos;:2&#125;, &#123;&apos;x&apos;:2, &apos;y&apos;:4&#125;]</div><div class="line">    print(list(dedupe(a, key=lambda d: (d[&apos;x&apos;],d[&apos;y&apos;]))))</div><div class="line">    print(list(dedupe(a, key=lambda d: d[&apos;x&apos;])))</div></pre></td></tr></table></figure>
+<p>这里的key参数指定了一个函数，将序列元素转换成 hashable 类型。<br>如果你想基于单个字段、属性或者某个更大的数据结构来消除重复元素，第二种方案同样可以胜任。</p>
+<p>如果你仅仅就是想消除重复元素，通常可以简单的构造一个集合。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; a = [1, 5, 2, 1, 9, 1, 5, 10]</div><div class="line">&gt;&gt;&gt; a</div><div class="line">[1, 5, 2, 1, 9, 1, 5, 10]</div><div class="line">&gt;&gt;&gt; set(a)</div><div class="line">set([1, 2, 10, 5, 9])</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
+<p>但是这种方式不能保证元素间的顺序不变，因此得到的结果会被打乱。前面展示的解决方案可避免出现这个问题。</p>
+<p>对生成器的使用反映一个事实，那就是我们可能会希望这个函数尽可能的通用——不必绑定在只能对列表进行处理。比如，如果想读一个文件，去除其中重复的文本行，可以只需要这样处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">with open(somefile,&apos;r&apos;) as f:</div><div class="line">for line in dedupe(f):</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>dedupe()函数模仿了内置函数 sorted() , min() 和 max()对key函数的使用方式</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>《python cookbook》 这本写的内容比较有实战意义，很多处理方式是我们在日常开发中会比较多的涉及，建议大家没事的时候多翻翻。<br>在这篇文章发布之初的目的是为了记录下来方便以后自己查询，后来查到，网上已经有牛人将它翻译整理成好了，后续不会更新相关的文章，更多的信息可以<a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/index.html" target="_blank" rel="external">在线查阅</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/26/2017022603/" rel="next" title="OpenStack Mitaka Horiozn 主题开发">
+                <i class="fa fa-chevron-left"></i> OpenStack Mitaka Horiozn 主题开发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/26/2017022605/" rel="prev" title="OpenStack Mitaka keystone 分页（pagination）实现">
+                OpenStack Mitaka keystone 分页（pagination）实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、将序列分解为单独的变量"><span class="nav-number">2.</span> <span class="nav-text">二、将序列分解为单独的变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、从任意长度的可迭代对象中分解元素"><span class="nav-number">3.</span> <span class="nav-text">三、从任意长度的可迭代对象中分解元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、保留最后N个元素"><span class="nav-number">4.</span> <span class="nav-text">四、保留最后N个元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、找到最大或者最小的N个元素"><span class="nav-number">5.</span> <span class="nav-text">五、找到最大或者最小的N个元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、实现优先级队列"><span class="nav-number">6.</span> <span class="nav-text">六、实现优先级队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、在字典中将多个健映射到多个值上"><span class="nav-number">7.</span> <span class="nav-text">七、在字典中将多个健映射到多个值上</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、让字典保持有序"><span class="nav-number">8.</span> <span class="nav-text">八、让字典保持有序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#九、字典的计算"><span class="nav-number">9.</span> <span class="nav-text">九、字典的计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#十、查找两字典的相同点"><span class="nav-number">10.</span> <span class="nav-text">十、查找两字典的相同点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#十一、从序列中移除重复项且保持元素间顺序不变"><span class="nav-number">11.</span> <span class="nav-text">十一、从序列中移除重复项且保持元素间顺序不变</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">12.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
