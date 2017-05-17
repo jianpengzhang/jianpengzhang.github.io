@@ -1,0 +1,918 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenStack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一、写在前面这篇文章主要介绍了OpenStack Ocata Horizon 根据官方的快速开始文档进行实际的调试验证，涉及在基于基本组件部署完成的情况下，源码部署Horizon开发环境，在后续的文章中将通过不同的文章来具体来说明开发，不涉及OpenStack Ocata 其他组件部署，由于作者能力或者理解不够如果错误请告知， 如果转载，请保留作者信息。 
+邮箱地址：jpzhang.ht@gmai">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenStack Ocata Horizon 开发（一）—— 快速开始">
+<meta property="og:url" content="http://yoursite.com/2017/05/18/2017051801/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="一、写在前面这篇文章主要介绍了OpenStack Ocata Horizon 根据官方的快速开始文档进行实际的调试验证，涉及在基于基本组件部署完成的情况下，源码部署Horizon开发环境，在后续的文章中将通过不同的文章来具体来说明开发，不涉及OpenStack Ocata 其他组件部署，由于作者能力或者理解不够如果错误请告知， 如果转载，请保留作者信息。 
+邮箱地址：jpzhang.ht@gmai">
+<meta property="og:updated_time" content="2017-05-17T19:16:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenStack Ocata Horizon 开发（一）—— 快速开始">
+<meta name="twitter:description" content="一、写在前面这篇文章主要介绍了OpenStack Ocata Horizon 根据官方的快速开始文档进行实际的调试验证，涉及在基于基本组件部署完成的情况下，源码部署Horizon开发环境，在后续的文章中将通过不同的文章来具体来说明开发，不涉及OpenStack Ocata 其他组件部署，由于作者能力或者理解不够如果错误请告知， 如果转载，请保留作者信息。 
+邮箱地址：jpzhang.ht@gmai">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/18/2017051801/"/>
+
+
+
+
+
+  <title> OpenStack Ocata Horizon 开发（一）—— 快速开始 | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/18/2017051801/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                OpenStack Ocata Horizon 开发（一）—— 快速开始
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-18T03:00:24+08:00">
+                2017-05-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h3><p>这篇文章主要介绍了OpenStack Ocata Horizon 根据官方的快速开始文档进行实际的调试验证，涉及在基于基本组件部署完成的情况下，源码部署Horizon开发环境，在后续的文章中将通过不同的文章来具体来说明开发，不涉及OpenStack Ocata 其他组件部署，由于作者能力或者理解不够如果错误请告知， 如果转载，请保留作者信息。 </p>
+<p>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io/" target="_blank" rel="external">https://jianpengzhang.github.io/</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a></p>
+<a id="more"></a>￼<br><br>### 二、Horizon (OpenStack Dashboard)<br>Horizon是一个基于Django的项目，旨在提供一个完整的OpenStack仪表板，以及一个可扩展框架，用于从可重用组件来构建新的仪表板。 openstack_dashboard模块是Django站点的实现，它使用Horizon APP来提供与各种OpenStack项目基于Web的交互。<br><br>项目页面：<a href="https://launchpad.net/horizon" target="_blank" rel="external">https://launchpad.net/horizon</a><br>蓝图和功能规格：<a href="https://blueprints.launchpad.net/horizon" target="_blank" rel="external">https://blueprints.launchpad.net/horizon</a><br>问题跟踪：<a href="https://bugs.launchpad.net/horizon" target="_blank" rel="external">https://bugs.launchpad.net/horizon</a><br>源代码:<a href="https://github.com/openstack/horizon" target="_blank" rel="external">https://github.com/openstack/horizon</a><br>代码审查:<a href="https://review.openstack.org/#q,status:open+project:openstack/horizon,n,z" target="_blank" rel="external">https://review.openstack.org/#q,status:open+project:openstack/horizon,n,z</a><br>持续集成:<code>Jenkins</code><a href="https://jenkins.openstack.org" target="_blank" rel="external">https://jenkins.openstack.org </a>;<code>Zuul</code><a href="http://status.openstack.org/zuul" target="_blank" rel="external">http://status.openstack.org/zuul</a><br><br><br>### 三、使用Horizon<br>请参阅doc/source/topics/install.rst 有关如何在OpenStack中安装Horizon。 它描述了示例步骤，并提供了更详细的设置和配置的指针。也可以在<a href="http://docs.openstack.org/developer/horizon/topics/install.html" target="_blank" rel="external">http://docs.openstack.org/developer/horizon/topics/install.html</a>上找到。<br><br>Horizon界面功能使用请参考：<a href="https://docs.openstack.org/user-guide/common/conventions.html" target="_blank" rel="external">https://docs.openstack.org/user-guide/common/conventions.html</a><br><br>### 四、开发人员入门<br>doc/source/quickstart.rst 或<a href="http://docs.openstack.org/developer/horizon/quickstart.html" target="_blank" rel="external">http://docs.openstack.org/developer/horizon/quickstart.html</a>介绍如何设置Horizon开发环境并开始开发。<br><br>### 五、构建贡献者文档<br>OpenStack Horizon 源码包目录中有一个目录为：<code>horizon-stable-ocata/doc</code>：<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">.</div><div class="line">├── Makefile</div><div class="line">└── source</div><div class="line">    ├── browser_support.rst</div><div class="line">    ├── conf.py</div><div class="line">    ├── contributing.rst</div><div class="line">    ├── faq.rst</div><div class="line">    ├── glossary.rst</div><div class="line">    ├── images</div><div class="line">    ├── index.rst</div><div class="line">    ├── intro.rst</div><div class="line">    ├── plugin_registry.rst</div><div class="line">    ├── quickstart.rst</div><div class="line">    ├── ref</div><div class="line">    ├── testing.rst</div><div class="line">    ├── topics</div><div class="line">    └── tutorials</div></pre></td></tr></table></figure>
+<p>这里面是由贡献者撰写的关于Horizon使用的文档，与<a href="http://docs.openstack.org/developer/horizon/quickstart.html" target="_blank" rel="external">http://docs.openstack.org/developer/horizon/quickstart.html</a>内容是一直的，如果觉得网页浏览查看速度慢或者环境限制不能上网可以通过构建成html在本地进行浏览，源文件使用<a href="http://docutils.sourceforge.net/rst.html" target="_blank" rel="external">reStructuredText</a>维护在doc/source目录中，由<a href="http://www.sphinx-doc.org/en/stable/" target="_blank" rel="external">Sphinx</a>构建.</p>
+<p>自动建筑命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./run_tests.sh --docs</div></pre></td></tr></table></figure></p>
+<p>如果想知道更多run_tests.sh的功能，可以<code>./run_tests.sh --help</code>查阅，通过该方式构建文档，通过virtualenv建立一个隔离的环境。</p>
+<p>手动建筑命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ tools / with_venv.sh sphinx-build doc / source</div></pre></td></tr></table></figure>
+<p>doc/build/html目录中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">.</div><div class="line">├── browser_support.html</div><div class="line">├── contributing.html</div><div class="line">├── faq.html</div><div class="line">├── genindex.html</div><div class="line">├── glossary.html</div><div class="line">├── _images</div><div class="line">├── index.html</div><div class="line">├── intro.html</div><div class="line">├── _modules</div><div class="line">├── objects.inv</div><div class="line">├── plugin_registry.html</div><div class="line">├── py-modindex.html</div><div class="line">├── quickstart.html</div><div class="line">├── ref</div><div class="line">├── search.html</div><div class="line">├── searchindex.js</div><div class="line">├── _sources</div><div class="line">├── _static</div><div class="line">├── testing.html</div><div class="line">├── topics</div><div class="line">└── tutorials</div></pre></td></tr></table></figure>
+<h3 id="六、Horizon-UI开发环境部署"><a href="#六、Horizon-UI开发环境部署" class="headerlink" title="六、Horizon UI开发环境部署"></a>六、Horizon UI开发环境部署</h3><p>这里认为你已经部署好了一个openstack ocata基础环境，仅演示手动部署horizon UI开发环境。</p>
+<h4 id="1-、基础准备"><a href="#1-、基础准备" class="headerlink" title="(1)、基础准备"></a>(1)、基础准备</h4><p>通过<a href="https://pypi.python.org/pypi/virtualenv" target="_blank" rel="external">Virtualenv</a>，创建一个隔离的horizon部署环境，<br>pip安装virtualenv:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">apt-get install python-pip</div><div class="line">pip install virtualenv 或者 apt-get install python-virtualenv</div></pre></td></tr></table></figure></p>
+<p>创建一个独立的Horizon运行环境:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">virtualenv --no-site-packages horizon.venv</div><div class="line">输出：</div><div class="line">Running virtualenv with interpreter /usr/bin/python2</div><div class="line">New python executable in /home/work/horizon.venv/bin/python2</div><div class="line">Also creating executable in /home/work/horizon.venv/bin/python</div><div class="line">Installing setuptools, pkg_resources, pip, wheel...done.</div></pre></td></tr></table></figure></p>
+<p>source进入该环境:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">source horizon.venv/bin/activate</div><div class="line">(horizon.venv) root@ubuntu:/home/work#</div></pre></td></tr></table></figure></p>
+<p>退出当前的venv环境，使用deactivate命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">(horizon.venv) root@ubuntu:/home/work# deactivate</div><div class="line">root@ubuntu:/home/work#</div></pre></td></tr></table></figure></p>
+<h4 id="2-、安装-Horizon"><a href="#2-、安装-Horizon" class="headerlink" title="(2)、安装 Horizon"></a>(2)、安装 Horizon</h4><p>下载 Horizon 代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/openstack/horizon.git</div><div class="line">cd horizon/</div></pre></td></tr></table></figure></p>
+<p>安装 Horizon 用于开发:在horizon目录下执行，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install -e .</div></pre></td></tr></table></figure></p>
+<p>出错：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">_setup/include/cext.h:34:20: fatal error: Python.h: No such file or directory</div><div class="line"></div><div class="line"> #include &quot;Python.h&quot;</div></pre></td></tr></table></figure></p>
+<p>执行如下命令解决问题，在重复执行上面的命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install -y libxml2-dev libxslt1-dev zlib1g-dev python3-pip</div></pre></td></tr></table></figure></p>
+<p>配置环境：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp openstack_dashboard/local/local_settings.py.example openstack_dashboard/local/local_settings.py</div></pre></td></tr></table></figure></p>
+<p>vi openstack_dashboard/local/local_settings.py<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">ALLOWED_HOSTS = &apos;*&apos;</div><div class="line"># ...</div><div class="line">OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = &apos;default&apos; # 如果 Domain 的 ID 不是 default，则为对应的 ID  </div><div class="line"># ...</div><div class="line">OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True</div><div class="line"># ...</div><div class="line">OPENSTACK_HOST = &quot;172.16.17.59&quot; # 控制节点IP地址</div><div class="line">OPENSTACK_KEYSTONE_URL = &quot;http://%s:5000/v3&quot; % OPENSTACK_HOST</div><div class="line">OPENSTACK_KEYSTONE_DEFAULT_ROLE = &quot;user&quot; #根据你的环境自己配置这个参数，这里我是‘user’</div><div class="line"># ...</div><div class="line">OPENSTACK_API_VERSIONS = &#123;</div><div class="line">  &quot;identity&quot;: 3,</div><div class="line">  &quot;image&quot;: 2,</div><div class="line">  &quot;volume&quot;: 2,</div><div class="line">&#125;</div><div class="line"># ...</div><div class="line"># 根据你的网络环境配置这里的参数</div><div class="line">OPENSTACK_NEUTRON_NETWORK = &#123;</div><div class="line">  #...</div><div class="line">  &apos;enable_router&apos;: False,</div><div class="line">  &apos;enable_quotas&apos;: False,</div><div class="line">  &apos;enable_distributed_router&apos;: False,</div><div class="line">  &apos;enable_ha_router&apos;: False,</div><div class="line">  &apos;enable_lb&apos;: False,</div><div class="line">  &apos;enable_firewall&apos;: False,</div><div class="line">  &apos;enable_vpn&apos;: False,</div><div class="line">  &apos;enable_fip_topology_check&apos;: False,</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>初始化静态文件 注意：一定要先执行此步骤再启动服务！否则再执行因为缓存还是不能正常运行，需要在 collectstatic 时增加 -c 参数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">python manage.py collectstatic -l</div><div class="line"></div><div class="line">python manage.py compress --force</div></pre></td></tr></table></figure></p>
+<p>启动 Horizon 项目:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python manage.py runserver 0.0.0.0:8001</div></pre></td></tr></table></figure></p>
+<p>出错：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">AttributeError: DjangoTranslation instance has no attribute &apos;plural&apos;</div></pre></td></tr></table></figure></p>
+<p>执行如下命令解决问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd horizon/openstack_dashboard</div><div class="line">django-admin compilemessages</div></pre></td></tr></table></figure></p>
+<h4 id="3-、小结"><a href="#3-、小结" class="headerlink" title="(3)、小结"></a>(3)、小结</h4><p>完成上述配置，一个简单的 OpenStack UI 开发环境就搭建完成了。当然每个人的环境不一致，可能会遇到一些奇怪的问题，需要静下心满满解决这些问题。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenStack/" rel="tag"># OpenStack</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/18/2017041801/" rel="next" title="Linux Ubuntu 修改网卡名字">
+                <i class="fa fa-chevron-left"></i> Linux Ubuntu 修改网卡名字
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#六、Horizon-UI开发环境部署"><span class="nav-number">2.</span> <span class="nav-text">六、Horizon UI开发环境部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-、基础准备"><span class="nav-number">2.1.</span> <span class="nav-text">(1)、基础准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-、安装-Horizon"><span class="nav-number">2.2.</span> <span class="nav-text">(2)、安装 Horizon</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-、小结"><span class="nav-number">2.3.</span> <span class="nav-text">(3)、小结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
