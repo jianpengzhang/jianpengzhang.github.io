@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="操作系统 － Linux," />
+  <meta name="keywords" content="OpenStack," />
 
 
 
@@ -87,21 +87,19 @@
 
 
 
-<meta name="description" content="Linux Ubuntu 修改网卡名字一、写在前面这篇文章主要介绍了，Linux Ubuntu 系统下通过以下两种方式修改网卡的名字，这里根据自己的实际操作验证，从中学习记录，方便后续查询。
-邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019">
+<meta name="description" content="一、介绍Horizon允许添加dashboards(仪表板)，panels(面板)和panel groups(面板组)，而无需修改默认设置。 可插入设置是一种允许将设置存储在单独文件中的机制。 这些文件在启动时读取并用于修改默认设置。该博文基于OpenStack rocky版本。
+dashboards(仪表板)配置文件的默认位置是openstack_dashboard/enabled，另一个目录是">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux Ubuntu 修改网卡名字">
-<meta property="og:url" content="http://yoursite.com/2017/04/18/2017041801/index.html">
+<meta property="og:title" content="可插拔Panels 和 Groups">
+<meta property="og:url" content="http://yoursite.com/2018/11/16/2018111501/index.html">
 <meta property="og:site_name" content="小工匠 – JP.Zhang">
-<meta property="og:description" content="Linux Ubuntu 修改网卡名字一、写在前面这篇文章主要介绍了，Linux Ubuntu 系统下通过以下两种方式修改网卡的名字，这里根据自己的实际操作验证，从中学习记录，方便后续查询。
-邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019">
-<meta property="og:image" content="http://yoursite.com/2017/04/18/2017041801/1-01.png">
-<meta property="og:updated_time" content="2017-04-17T16:22:30.000Z">
+<meta property="og:description" content="一、介绍Horizon允许添加dashboards(仪表板)，panels(面板)和panel groups(面板组)，而无需修改默认设置。 可插入设置是一种允许将设置存储在单独文件中的机制。 这些文件在启动时读取并用于修改默认设置。该博文基于OpenStack rocky版本。
+dashboards(仪表板)配置文件的默认位置是openstack_dashboard/enabled，另一个目录是">
+<meta property="og:updated_time" content="2018-11-15T16:47:21.768Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux Ubuntu 修改网卡名字">
-<meta name="twitter:description" content="Linux Ubuntu 修改网卡名字一、写在前面这篇文章主要介绍了，Linux Ubuntu 系统下通过以下两种方式修改网卡的名字，这里根据自己的实际操作验证，从中学习记录，方便后续查询。
-邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019">
-<meta name="twitter:image" content="http://yoursite.com/2017/04/18/2017041801/1-01.png">
+<meta name="twitter:title" content="可插拔Panels 和 Groups">
+<meta name="twitter:description" content="一、介绍Horizon允许添加dashboards(仪表板)，panels(面板)和panel groups(面板组)，而无需修改默认设置。 可插入设置是一种允许将设置存储在单独文件中的机制。 这些文件在启动时读取并用于修改默认设置。该博文基于OpenStack rocky版本。
+dashboards(仪表板)配置文件的默认位置是openstack_dashboard/enabled，另一个目录是">
 
 
 
@@ -129,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/04/18/2017041801/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/11/16/2018111501/"/>
 
 
 
 
 
-  <title> Linux Ubuntu 修改网卡名字 | 小工匠 – JP.Zhang </title>
+  <title> 可插拔Panels 和 Groups | 小工匠 – JP.Zhang </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -286,7 +284,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/18/2017041801/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/16/2018111501/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="jpzhang">
@@ -307,7 +305,7 @@
             
             
               
-                Linux Ubuntu 修改网卡名字
+                可插拔Panels 和 Groups
               
             
           </h1>
@@ -322,8 +320,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-18T00:15:46+08:00">
-                2017-04-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-16T00:10:20+08:00">
+                2018-11-16
               </time>
             
 
@@ -363,19 +361,40 @@
       
 
       
-        <h1 id="Linux-Ubuntu-修改网卡名字"><a href="#Linux-Ubuntu-修改网卡名字" class="headerlink" title="Linux Ubuntu 修改网卡名字"></a>Linux Ubuntu 修改网卡名字</h1><h4 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h4><p>这篇文章主要介绍了，Linux Ubuntu 系统下通过以下两种方式修改网卡的名字，这里根据自己的实际操作验证，从中学习记录，方便后续查询。</p>
+        <h4 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h4><p>Horizon允许添加dashboards(仪表板)，panels(面板)和panel groups(面板组)，而无需修改默认设置。 可插入设置是一种允许将设置存储在单独文件中的机制。 这些文件在启动时读取并用于修改默认设置。该博文基于OpenStack rocky版本。</p>
+<p>dashboards(仪表板)配置文件的默认位置是openstack_dashboard/enabled，另一个目录是openstack_dashboard/local/enabled，用于本地覆盖。启动后将加载这两组文件，但openstack_dashboard/local/enabled中的设置将覆盖openstack_dashboard/enabled中的默认设置。 设置按文件名的字母顺序应用，如果同一仪表板的配置文件已启用且已启用本地local/enabled，则将使用本地名称覆盖前者。 请注意，由于python模块的名称不能以数字开头，因此文件通常以前导下划线和数字命名，以便您可以轻松控制其顺序。</p>
+<p>该博文用于解释enabled中文件参数的定义，主要参考官方的说明，后续的博文将叙述具体的扩展的方式。</p>
 <p>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io/" target="_blank" rel="external">https://jianpengzhang.github.io/</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a></p>
-<a id="more"></a>￼<br><br>### 二、方案一：<br>1,首先修改网卡物理配置文件，没有这个文件的话新建一个或者从已有的环境上拷贝一份过来按照要求进行修改<br>&gt; vi /etc/udev/rules.d/70-persistent-net.rules<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># PCI device 0x14e4:0x1692 (tg3)</div><div class="line">SUBSYSTEM==&quot;net&quot;, ACTION==&quot;add&quot;, DRIVERS==&quot;?*&quot;, ATTR&#123;address&#125;==&quot;bc:30:5b:b1:cd:be&quot;, ATTR&#123;dev_id&#125;==&quot;0x0&quot;, ATTR&#123;type&#125;==&quot;1&quot;, KERNEL==&quot;eth*&quot;, NAME=&quot;eth0&quot;</div><div class="line"></div><div class="line">关键字解释：</div><div class="line">ATTR&#123;address&#125;==&quot;bc:30:5b:9c:ae:79&quot; ##物理网卡MAC地址   ifconfig查看</div><div class="line">KERNEL==&quot;eth*&quot; ##原网卡名</div><div class="line">NAME=&quot;eth0&quot; ##现网卡名</div></pre></td></tr></table></figure>
-<p>需要把这个文件中网卡的MAC地址，原网卡名字以及需要改成的网卡名字配置进去。</p>
-<p>2,修改网落配置文件</p>
-<blockquote>
-<p>vi /etc/network/interfaces</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">auto eth0</div><div class="line">iface eth0 inet static</div><div class="line">address 172.16.19.XX</div><div class="line">netmask 255.255.255.0</div><div class="line"></div><div class="line">这个要配置成修改后新的网卡名字</div><div class="line">auto eth0 ##网卡名对应要正确</div></pre></td></tr></table></figure>
-<p>3,重启服务器<br>  重启物理服务器有一定的风险服务器没有重启起来，个人测试环境比较老旧有出现过服务器重启不起来，或者重启起来服务器因为网络配置错误出现失联情况，<strong>提示：</strong>在进行网卡修改的时候最好服务器离自己比较近，不要在远程的方式下进行修改，防止服务器失联。</p>
-<h3 id="三、方案二："><a href="#三、方案二：" class="headerlink" title="三、方案二："></a>三、方案二：</h3><p>在<code>/etc/default/grub</code>中，<code>GRUB_CMDLINE_LINUX</code>里添加参数<code>net.ifnames=0 biosdevname=0</code>，如下图所示:</p>
-<p><img src="/2017/04/18/2017041801/1-01.png" alt="图1" title="图1">￼</p>
-<p>然后在命令行执行，<code>update-grub</code>，最后，修改/etc/network/interfaces文件，<br>将网卡名改为eth0<br>重启系统，网卡名更改成功，当然这里也会出现服务器失联的情况需要注意。</p>
+<a id="more"></a>￼<br><br>#### 二、常规设置建议<br><strong>1、General Pluggbale Settings</strong><br>可以在任何可插入设置文件（openstack_dashboard/enabled、openstack_dashboard/local/enabled）中使用以下键。<br><br>（1）、ADD_EXCEPTIONS:要添加到HORIZON [‘exceptions’]的异常类的字典。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ADD_EXCEPTIONS = &#123;&#125;</div></pre></td></tr></table></figure>
+<p>（2）、ADD_INSTALLED_APPS：要添加到INSTALLED_APPS的应用程序列表。 这是从插件中公开静态文件所必需的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ADD_INSTALLED_APPS = [&apos;openstack_dashboard.dashboards.project&apos;]</div></pre></td></tr></table></figure></p>
+<p>(3)、ADD_ANGULAR_MODULES：Angular bootstraps时要加载的AngularJS模块列表。这些模块作为依赖关系添加到根Horizon应用程序范围。</p>
+<p>(4)、ADD_JS_FILES：包含在每个页面上加载的压缩文件的javascript源文件列表。这对于ADD_ANGULAR_MODULES中引用的AngularJS模块是必需的，因此需要包含在每个页面中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ADD_JS_FILES = []</div></pre></td></tr></table></figure></p>
+<p>(5)、ADD_JS_SPEC_FILES:要包含的javascript规范文件列表，以便与Jasmine规范运行器集成。 Jasmine是一个用于测试JavaScript代码的行为驱动开发框架。</p>
+<p>(6)、ADD_SCSS_FILES:包含在每个页面上加载的压缩文件scss文件列表。建议每个仪表板使用一个scss文件，如果需要为面板添加额外的scss文件，请使用@import。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ADD_SCSS_FILES = [</div><div class="line">    &apos;dashboard/project/containers/_containers.scss&apos;,</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>(7)、ADD_XSTATIC_MODULES:包含javascript和scss文件的xstatic模块列表，这些文件将包含在每个页面上加载的压缩文件。ADD_XSTATIC_MODULES中指定的相关文件不需要包含在ADD_JS_FILES中。此选项需要一个元组列表，每个元组包含一个xstatic模块和一个要加载的javascript文件列表（如果有的话）。 有关更多详细信息，请查看openstack_dashboard/utils/settings.py中BASE_XSTATIC_MODULES的注释。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ADD_XSTATIC_MODULES = [</div><div class="line">    (&apos;xstatic.pkg.foo&apos;, [&apos;foo.js&apos;]),</div><div class="line">    (&apos;xstatic.pkg.bar&apos;, None),</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>(8)、AUTO_DISCOVER_STATIC_FILES:如果设置为True，将自动从ADD_INSTALLED_APPS中列出的每个应用程序中的静态文件夹中发现JavaScript文件和静态html模板文件。<br>JavaScript源文件将根据命名约定进行排序：首先列出扩展名为.module.js的文件，然后列出其他JavaScript源文件。<br>用于测试的JavaScript文件也将根据命名约定进行排序：首先列出扩展名为.mock.js的文件，然后列出扩展名为.spec.js的文件。<br>如果还指定了ADD_JS_FILES和/或ADD_JS_SPEC_FILES，手动列在其中的文件将附加到自动发现的文件中。</p>
+<p>(9)、DISABLED:如果设置为True，则不会将此设置文件添加到设置中。</p>
+<p>(10)、EXTRA_STEPS:通过使用此设置，可以将额外的工作流程步骤添加到地平线(Horizon)或其他地平线(Horizon)插件中的工作流程。 在相应工作流程中定义的默认步骤之后，将显示额外步骤。<br>这是一个字典设置。 dict的键指定了添加额外步骤的工作流程。dict的key必须与目标工作流的完整类名匹配。<br>dict的值是一个额外步骤类的全名列表（其中模块名称和类名称必须用句点分隔）。通过EXTRA_STEPS指定的步骤将按照注册顺序显示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">EXTRA_STEPS = &#123;</div><div class="line">    &apos;openstack_dashboard.dashboards.identity.projects.workflows.UpdateQuota&apos;:</div><div class="line">    (</div><div class="line">        (&apos;openstack_dashboard.dashboards.identity.projects.workflows.&apos;</div><div class="line">         &apos;UpdateVolumeQuota&apos;),</div><div class="line">        (&apos;openstack_dashboard.dashboards.identity.projects.workflows.&apos;</div><div class="line">         &apos;UpdateNetworkQuota&apos;),</div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>(11)、EXTRA_TABS:通过使用此设置，可以将额外tabs添加到在Horizon或其他Horizon插件中实现的tab group。在相应tab group中定义的默认tab后，将显示其他tab。<br>这是一个字典设置。dict的一个键指定一个tab group，其中添加了额外的tab。key必须与目标tab group的完整类名匹配。<br>dict的值是额外tab类的全名列表（其中模块名称和类名称必须用句点分隔）。通过EXTRA_TABS指定的tab将按照注册顺序显示。<br>在某些情况下，可能希望指定额外tab的顺序，因为多个Horizon插件可以注册额外的tab。可以使用优先级元组和制表符类作为dict值的元素而不是额外制表符的全名来指定EXTRA_TABS中每个制表符的优先级。优先级是tab的整数，将首先显示值较低的tab。如果省略额外tab的优先级，则假定0为优先级。</p>
+<p>示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXTRA_TABS = &#123;</div><div class="line">    &apos;openstack_dashboard.dashboards.project.networks.tabs.NetworkDetailsTabs&apos;: (</div><div class="line">        &apos;openstack_dashboard.dashboards.project.networks.subnets.tabs.SubnetsTab&apos;,</div><div class="line">        &apos;openstack_dashboard.dashboards.project.networks.ports.tabs.PortsTab&apos;,</div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>示例（优先级）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXTRA_TABS = &#123;</div><div class="line">    &apos;openstack_dashboard.dashboards.project.networks.tabs.NetworkDetailsTabs&apos;: (</div><div class="line">        (1, &apos;openstack_dashboard.dashboards.project.networks.subnets.tabs.SubnetsTab&apos;),</div><div class="line">        (2, &apos;openstack_dashboard.dashboards.project.networks.ports.tabs.PortsTab&apos;),</div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>(12)、UPDATE_HORIZON_CONFIG:将替换HORIZON_CONFIG中的值的字典。</p>
+<p><strong>2、Dashboards的可插拔设置</strong><br>以下键专用于注册Dashboards：<br>(1)、DASHBOARD：要添加到 HORIZON[‘dashboards’] 的仪表板的参数，必填。</p>
+<p>(2)、DEFAULT：如果设置为True，则此仪表板将设置为默认仪表板。<br>示例：<br>要在本地禁用仪表板，请使用以下内容创建文件openstack_dashboard/local/enabled/_40_dashboard-name.py：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">DASHBOARD = &apos;&lt;dashboard-name&gt;&apos;</div><div class="line">DISABLED = True</div></pre></td></tr></table></figure></p>
+<p>要添加Tuskar-UI（基础结构）仪表板，必须安装它，然后创建一个文件openstack_dashboard/local/enabled/_50_tuskar.py<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">from tuskar_ui import exceptions</div><div class="line"></div><div class="line">DASHBOARD = &apos;infrastructure&apos;</div><div class="line">ADD_INSTALLED_APPS = [</div><div class="line">    &apos;tuskar_ui.infrastructure&apos;,</div><div class="line">]</div><div class="line">ADD_EXCEPTIONS = &#123;</div><div class="line">    &apos;recoverable&apos;: exceptions.RECOVERABLE,</div><div class="line">    &apos;not_found&apos;: exceptions.NOT_FOUND,</div><div class="line">    &apos;unauthorized&apos;: exceptions.UNAUTHORIZED,</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>3、Panels的可插拔设置</strong><br>以下键专用于注册或删除面板。<br>(1)、PANEL:要添加到HORIZON_CONFIG的PANEL。必须。</p>
+<p>(2)、PANEL_GROUP:PANEL所关联的面板组的slug。如果希望面板在没有面板组的情况下显示，请使用面板组“default”。</p>
+<p>(3)、DEFAULT_PANEL:如果设置，它将更新PANEL_DASHBOARD的默认面板。</p>
+<p>(4)、ADD_PANEL:要添加的PANEL的Python面板类。</p>
+<p>(5)、REMOVE_PANEL:如果设置为True，则PANEL将从PANEL_DASHBOARD/PANEL_GROUP删除。<br>示例：<br>要在管理仪表板的“管理”面板组中添加新面板，请创建一个文件openstack_dashboard/local/enabled/_60_admin_add_panel.py，其中包含以下内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PANEL = &apos;plugin_panel&apos;</div><div class="line">PANEL_DASHBOARD = &apos;admin&apos;</div><div class="line">PANEL_GROUP = &apos;admin&apos;</div><div class="line">ADD_PANEL = &apos;test_panels.plugin_panel.panel.PluginPanel&apos;</div></pre></td></tr></table></figure></p>
+<p>要在本地管理仪表板的“管理”面板组中删除“信息”面板，请创建一个文件openstack_dashboard/local/enabled/_70_admin_remove_panel.py，其中包含以下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PANEL = &apos;info&apos;</div><div class="line">PANEL_DASHBOARD = &apos;admin&apos;</div><div class="line">PANEL_GROUP = &apos;admin&apos;</div><div class="line">REMOVE_PANEL = True</div></pre></td></tr></table></figure>
+<p>要将Admin仪表板的默认面板更改为Instances面板，请使用以下内容创建openstack_dashboard/local/enabled/_80_admin_default_panel.py 文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PANEL = &apos;instances&apos;</div><div class="line">PANEL_DASHBOARD = &apos;admin&apos;</div><div class="line">PANEL_GROUP = &apos;admin&apos;</div><div class="line">DEFAULT_PANEL = &apos;instances&apos;</div></pre></td></tr></table></figure>
+<p><strong>4、Panel Groups的可插拔设置</strong><br>以下键专用于注册面板组。<br>(1)、PANEL_GROUP:要添加到HORIZON_CONFIG的面板组的slug。需要。</p>
+<p>(2)、PANEL_GROUP_NAME:PANEL_GROUP的显示名称。需要。</p>
+<p>(3)、PANEL_GROUP_DASHBOARD:PANEL_GROUP与之关联的仪表板的slug。需要。</p>
+<p>(4)、要将新面板组添加到管理仪表板，请使用以下内容创建文件openstack_dashboard/local/enabled/_90_admin_add_panel_group.py：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">PANEL_GROUP = &apos;plugin_panel_group&apos;</div><div class="line">PANEL_GROUP_NAME = &apos;Plugin Panel Group&apos;</div><div class="line">PANEL_GROUP_DASHBOARD = &apos;admin&apos;</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -420,7 +439,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/操作系统-－-Linux/" rel="tag"># 操作系统 － Linux</a>
+            <a href="/tags/OpenStack/" rel="tag"># OpenStack</a>
           
         </div>
       
@@ -433,8 +452,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/16/2017041601/" rel="next" title="GitHub + Hexo 搭建个人博客">
-                <i class="fa fa-chevron-left"></i> GitHub + Hexo 搭建个人博客
+              <a href="/2017/05/18/2017051801/" rel="next" title="OpenStack Ocata Horizon 开发（一）—— 快速开始">
+                <i class="fa fa-chevron-left"></i> OpenStack Ocata Horizon 开发（一）—— 快速开始
               </a>
             
           </div>
@@ -442,10 +461,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/05/18/2017051801/" rel="prev" title="OpenStack Ocata Horizon 开发（一）—— 快速开始">
-                OpenStack Ocata Horizon 开发（一）—— 快速开始 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -592,7 +607,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Ubuntu-修改网卡名字"><span class="nav-number">1.</span> <span class="nav-text">Linux Ubuntu 修改网卡名字</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">一、写在前面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、方案二："><span class="nav-number">1.0.1.</span> <span class="nav-text">三、方案二：</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、介绍"><span class="nav-number">1.</span> <span class="nav-text">一、介绍</span></a></li></ol></div>
             
 
           </div>
