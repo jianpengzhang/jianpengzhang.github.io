@@ -1,0 +1,974 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="OpenStack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="自定义Horizon一、写在前面继上篇博文，在这篇博文中说明自定义Horiozn，基于目前OpenStack rocky版本。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019Horizon 原文阅读地址：https://docs.openstac">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自定义Horizon">
+<meta property="og:url" content="http://yoursite.com/2018/11/27/2018112701/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="自定义Horizon一、写在前面继上篇博文，在这篇博文中说明自定义Horiozn，基于目前OpenStack rocky版本。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019Horizon 原文阅读地址：https://docs.openstac">
+<meta property="og:updated_time" content="2018-11-26T18:17:15.853Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自定义Horizon">
+<meta name="twitter:description" content="自定义Horizon一、写在前面继上篇博文，在这篇博文中说明自定义Horiozn，基于目前OpenStack rocky版本。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://blog.csdn.net/u011521019Horizon 原文阅读地址：https://docs.openstac">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/27/2018112701/"/>
+
+
+
+
+
+  <title> 自定义Horizon | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/27/2018112701/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自定义Horizon
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-27T01:50:55+08:00">
+                2018-11-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="自定义Horizon"><a href="#自定义Horizon" class="headerlink" title="自定义Horizon"></a>自定义Horizon</h1><h2 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h2><p>继上篇博文，在这篇博文中说明自定义Horiozn，基于目前OpenStack rocky版本。</p>
+<p>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io/" target="_blank" rel="external">https://jianpengzhang.github.io/</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a><br>Horizon 原文阅读地址：<a href="https://docs.openstack.org/horizon/ocata/topics/customizing.html" target="_blank" rel="external">https://docs.openstack.org/horizon/ocata/topics/customizing.html</a></p>
+<a id="more"></a>￼<br><br>## 二、更改Horizon Web标题<br>可以通过将属性SITE_BRANDING添加到local_settings.py（openstack_dashboard/local/local_settings.py），其值将作为覆盖OpenStack Dashboard站点标题（即“OpenStack Dashboard”）。<br><br>## 三、更改Logo点击链接<br><br>Web Logo图标也可以用来当超链接，默认点击后的行为是重定向到“horizon：user_home”。可以通过在<code>local_settings.py</code>更新属性<code>SITE_BRANDING_LINK</code>改变超链接的目标，例如:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SITE_BRANDING_LINK = &quot;https://www.baidu.com&quot;</div></pre></td></tr></table></figure>
+<h2 id="四、自定义页面页脚"><a href="#四、自定义页面页脚" class="headerlink" title="四、自定义页面页脚"></a>四、自定义页面页脚</h2><p>通过theme的模板添加自定义页脚即可：openstack_dashboard/templates/_footer.html（页面页脚）、openstack_dashboard/templates/_login_footer.html（登录页面页脚）、openstack_dashboard/templates/_login_form_footer.html（登录表单页脚）。<br>默认：_footer.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&#123;% comment %&#125;</div><div class="line">  A simple placeholder template for custom global footer content</div><div class="line">&#123;% endcomment %&#125;</div></pre></td></tr></table></figure>
+<p>模板引擎会忽略掉 comment 和 endcomment  之间的所有内容,所以默认情况下，Horizon虽然引入了页脚文件，但是没有加载任何信息。</p>
+<h2 id="五、修改Dashboards-和-Panels"><a href="#五、修改Dashboards-和-Panels" class="headerlink" title="五、修改Dashboards 和 Panels"></a>五、修改Dashboards 和 Panels</h2><p>更改Horizon原生的代码或者其他代码, 可以指定一个自定义Python模块, 该模块将在整个 horizon初始化之后加载, 但在urlconf构造之前加载。例如:</p>
+<ul>
+<li>从现有Dashboard注册或取消注册Panel。</li>
+<li>更改Dashboard和Panel的名称。</li>
+<li>重新排序Dashboard或Panel组中的Panel。</li>
+</ul>
+<p>默认Horizon面板基于<code>openstack_dashboard/enabled/</code>文件夹中的文件加载。这些文件是根据文件名顺序加载的，你可以添加更多文件。此文件夹中有一些示例文件（以.example后缀)。</p>
+<h2 id="六、Horizon定制模块（覆盖）"><a href="#六、Horizon定制模块（覆盖）" class="headerlink" title="六、Horizon定制模块（覆盖）"></a>六、Horizon定制模块（覆盖）</h2><p>Horizon具有可用于执行尚未通过配置设置进行自定义的全局覆盖机制。此文件可以执行修补和其他形式的自定义，这是通过启用文件夹的自定义方法无法实现的。<br>要指定包含修改的python模块，请将关键的<code>customization_module</code>添加到local_settings.py中的HORIZON_CONFIG字典中。该值应该是一个字符串，其中包含了用点分隔的python路径符号表示的模块路径。例如:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HORIZON_CONFIG[&quot;customization_module&quot;] = &quot;my_project.overrides&quot;</div></pre></td></tr></table></figure></p>
+<p>你可以在自定义模块中执行你喜欢的任何操作。例如，可以更改面板的名称：</p>
+<p>1、在<code>openstack_dashboard/locallocal_settings.py</code>添加或者修改<code>customization_module</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HORIZON_CONFIG[&quot;customization_module&quot;] = &quot;myproject.overrides&quot;</div></pre></td></tr></table></figure></p>
+<p>2、新建<code>openstack_dashboard/myproject</code>目录，结构看起来如下(当然你可以在其他路径下定义这个python文件)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">.</div><div class="line">├── __init__.py</div><div class="line">└── overrides.py</div></pre></td></tr></table></figure></p>
+<p>3、<code>overrides.py</code>添加以下代码，即可修改user panel的名称为“User Options”：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">from django.utils.translation import ugettext_lazy as _</div><div class="line">import horizon</div><div class="line"># Rename &quot;User Settings&quot; to &quot;User Options&quot;</div><div class="line">settings = horizon.get_dashboard(&quot;settings&quot;)</div><div class="line">user_panel = settings.get_panel(&quot;user&quot;)</div><div class="line">user_panel.name = _(&quot;User Options&quot;)</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：以下的修改都在<code>overrides.py</code>文件中。</p>
+</blockquote>
+<p>或者获取instances面板：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">projects_dashboard = horizon.get_dashboard(&quot;project&quot;)</div><div class="line">instances_panel = projects_dashboard.get_panel(&quot;instances&quot;)</div></pre></td></tr></table></figure></p>
+<p>或者完全删除它：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">projects_dashboard.unregister(instances_panel.__class__)</div></pre></td></tr></table></figure></p>
+<p>无法取消注册为default_panel的panel。如果要删除default_panel，则需要在dashboard中将其他panel设置为default_panel，然后取消注册前者。 例如，如果你希望从项目dashboard中删除overview_panel，则可以执行以下操作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">project = horizon.get_dashboard(&apos;project&apos;)</div><div class="line">project.default_panel = &quot;instances&quot;</div><div class="line">overview = project.get_panel(&apos;overview&apos;)</div><div class="line">project.unregister(overview.__class__)</div></pre></td></tr></table></figure></p>
+<p>还可以使用自己的版本覆盖现有方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">from openstack_dashboard.dashboards.admin.info import tabs</div><div class="line">from openstack_dashboard.dashboards.project.instances import tables</div><div class="line">NO = lambda *x: False</div><div class="line">tables.AssociateIP.allowed = NO</div><div class="line">tables.SimpleAssociateIP.allowed = NO</div><div class="line">tables.SimpleDisassociateIP.allowed = NO</div></pre></td></tr></table></figure></p>
+<p>还可以通过重新定义其Meta类的columns属性来自定义现有表中显示的列。可以通过3个步骤实现：</p>
+<ul>
+<li>1、扩展要修改的表;</li>
+<li>2、为此新表重新定义Meta类下的columns属性;</li>
+<li>3、修改相关视图的table_class属性，使其指向新表;</li>
+</ul>
+<p>例如，如果你希望从NetworksTable中删除Admin State列，则可以执行以下操作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">from openstack_dashboard.dashboards.project.networks import tables</div><div class="line">from openstack_dashboard.dashboards.project.networks import views</div><div class="line"></div><div class="line">class MyNetworksTable(tables.NetworksTable):</div><div class="line"></div><div class="line">    class Meta(tables.NetworksTable.Meta):</div><div class="line"></div><div class="line">        columns = (&apos;name&apos;, &apos;subnets&apos;, &apos;shared&apos;, &apos;status&apos;)</div><div class="line">    </div><div class="line">    views.IndexView.table_class = MyNetworksTable</div></pre></td></tr></table></figure></p>
+<p>如果要添加列，可以以类似的方式覆盖父表，添加新列定义，然后使用Meta columns属性根据需要控制列顺序。</p>
+<p><strong>注意</strong></p>
+<blockquote>
+<p>添加上面的代码后，你会发现这不像上面举例一样正常生效，这是需要由运行Horizon的python进程导入<code>myproject.overrides</code>。如果你的模块不是作为系统范围的python包安装的，那么你可以使它可安装（例如，使用setup.py），或者你可以调整WSGI服务器使用的python路径以包括它的位置。<br>也许最简单的方法是在Apache的配置中向WSGIDaemonProcess行添加一个python路径参数。<br>看上去像：WSGIDaemonProcess [… existing options …] python-path=/home/workspace/horizon/openstack_dashboard/myproject,假设你的目录在/home/workspace/horizon/openstack_dashboard/myproject</p>
+</blockquote>
+<p>我这里为了方便直接修改了<code>/etc/apache2/sites-available/horizon.conf</code>,添加：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">WSGIDaemonProcess  python-path=/home/workspace/horizon/openstack_dashboard/myproject</div></pre></td></tr></table></figure></p>
+<p>重启apache，刷新浏览器即可发现NetworksTable的列已经更新了。</p>
+<h2 id="自定义项目和用户表列"><a href="#自定义项目和用户表列" class="headerlink" title="自定义项目和用户表列"></a>自定义项目和用户表列</h2><p>Keystone V3可以存储有关项目和用户的额外信息。使用Horizon定制模块（覆盖）中描述的覆盖机制，Horizon能够将这些额外信息显示为自定义列。 例如，如果Keystone中的用户具有属性phone_num，则可以定义新列：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">from django.utils.translation import ugettext_lazy as _</div><div class="line">from horizon import forms</div><div class="line">from horizon import tables</div><div class="line">from openstack_dashboard.dashboards.identity.users import tables as user_tables</div><div class="line">from openstack_dashboard.dashboards.identity.users import views</div><div class="line"></div><div class="line">class MyUsersTable(user_tables.UsersTable):</div><div class="line">    phone_num = tables.Column(&apos;phone_num&apos;, verbose_name=_(&apos;Phone Number&apos;), form_field=forms.CharField(),)</div><div class="line">    </div><div class="line">    class Meta(user_tables.UsersTable.Meta):</div><div class="line">        columns = (&apos;name&apos;, &apos;description&apos;, &apos;phone_num&apos;)</div><div class="line"></div><div class="line">views.IndexView.table_class = MyUsersTable</div></pre></td></tr></table></figure>
+<h2 id="七、自定义Angular-dashboards-对Angular不熟，这部分没有验证"><a href="#七、自定义Angular-dashboards-对Angular不熟，这部分没有验证" class="headerlink" title="七、自定义Angular dashboards(对Angular不熟，这部分没有验证)"></a>七、自定义Angular dashboards(对Angular不熟，这部分没有验证)</h2><p>在Angular中，你可以编写一个插件来扩展某些功能。Horizon框架中实现此功能的两个组件是可扩展性服务和资源类型注册表服务。extensibleService允许动态扩展某些Horizon元素，包括添加、删除和替换。resourceTypeRegistry服务提供了设置和获取与资源类型对象有关的信息的方法。我们使用像OS::Glance::Image这样的Heat类型名作为我们的参考名称。<br>你可以在注册表中放置的一些信息包括：</p>
+<ul>
+<li>用于从中获取数据的API</li>
+<li>属性名</li>
+<li>动作（例如“创建卷”）</li>
+<li>详细视图或详细信息的URL路径</li>
+<li>属性信息，如标签或属性值的格式</li>
+</ul>
+<p>注册表中的这些属性使用可扩展性服务（从Newton版本开始）：</p>
+<ul>
+<li>globalActions</li>
+<li>batchActions</li>
+<li>itemActions</li>
+<li>detailViews</li>
+<li>tableColumns</li>
+<li>filterFacets </li>
+</ul>
+<p>使用注册表中的信息，我们可以构建dashboard panel。panel使用高级指令hzResourceTable替换常用模板，因此我们不需要编写HTML和控制器代码。它为开发人员提供了一种快速构建新表或更改现有表的方法。<br>注意：<br>你仍然可以选择使用HTML模板来完全控制表单和功能。 例如，你可能想要创建自定义页脚。 你也可以直接使用hzDynamicTable指令（hzResourceTable在引擎盖下使用）。 但是，这些都不是可扩展的。 你需要完全覆盖面板。<br>这是一个示例模块文件，用于演示如何对Images Panel进行一些自定义：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">(function() &#123;</div><div class="line">  &apos;use strict&apos;;</div><div class="line"></div><div class="line">  angular</div><div class="line">    .module(&apos;horizon.app.core.images&apos;)</div><div class="line">    .run(customizeImagePanel);</div><div class="line"></div><div class="line">  customizeImagePanel.$inject = [</div><div class="line">    &apos;horizon.framework.conf.resource-type-registry.service&apos;,</div><div class="line">    &apos;horizon.app.core.images.basePath&apos;,</div><div class="line">    &apos;horizon.app.core.images.resourceType&apos;,</div><div class="line">    &apos;horizon.app.core.images.actions.surprise.service&apos;</div><div class="line">  ];</div><div class="line"></div><div class="line">  function customizeImagePanel(registry, basePath, imageResourceType, surpriseService) &#123;</div><div class="line">    // get registry for ``OS::Glance::Image``</div><div class="line">    registry = registry.getResourceType(imageResourceType);</div><div class="line"></div><div class="line">    // replace existing Size column to make the font color red</div><div class="line">    var column = &#123;</div><div class="line">      id: &apos;size&apos;,</div><div class="line">      priority: 2,</div><div class="line">      template: &apos;&lt;a style=&quot;color:red;&quot;&gt;&#123;$ item.size | bytes $&#125;&lt;/a&gt;&apos;</div><div class="line">    &#125;;</div><div class="line">    registry.tableColumns.replace(&apos;size&apos;, column);</div><div class="line"></div><div class="line">    // add a new detail view</div><div class="line">    registry.detailsViews</div><div class="line">      .append(&#123;</div><div class="line">        id: &apos;anotherDetailView&apos;,</div><div class="line">        name: gettext(&apos;Another Detail View&apos;),</div><div class="line">        template: basePath + &apos;demo/detail.html&apos;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    // set a different summary drawer template</div><div class="line">    registry.setSummaryTemplateUrl(basePath + &apos;demo/drawer.html&apos;);</div><div class="line"></div><div class="line">    // add a new global action</div><div class="line">    registry.globalActions</div><div class="line">      .append(&#123;</div><div class="line">        id: &apos;surpriseAction&apos;,</div><div class="line">        service: surpriseService,</div><div class="line">        template: &#123;</div><div class="line">          text: gettext(&apos;Surprise&apos;)</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line">&#125;)();</div></pre></td></tr></table></figure></p>
+<p>此外，你应该在detail.html和drawer.html中定义内容，并定义基于actions指令和允许的需求并执行定义的方法的surpriseService。</p>
+<h2 id="八、Icons"><a href="#八、Icons" class="headerlink" title="八、Icons"></a>八、Icons</h2><p>Horizon使用Font Awesome中的字体图标。 有关如何在代码中使用图标的说明，请参阅<a href="https://fortawesome.github.io/Font-Awesome/" target="_blank" rel="external">Font Awesome</a>。</p>
+<p>要向“Table Action”添加图标，请使用图标属性。 例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">class CreateSnapshot(tables.LinkAction):</div><div class="line">    name = &quot;snapshot&quot;</div><div class="line">    verbose_name = _(&quot;Create Snapshot&quot;)</div><div class="line">    icon = &quot;camera&quot;</div></pre></td></tr></table></figure></p>
+<p>此外，可以通过将ACTION_CSS_CLASSES设置为你希望在local_settings.py文件中的所有操作按钮上显示的类的元组来配置站点范围的默认按钮类。</p>
+<h2 id="九、自定义CSS样式表"><a href="#九、自定义CSS样式表" class="headerlink" title="九、自定义CSS样式表"></a>九、自定义CSS样式表</h2><p>可以为dashboard定义自定义样式表。Horizon的基本模板openstack_dashboard/templates/base.html定义了可以覆盖的多个块。</p>
+<p>要定义仅适用于特定dashboard的自定义css文件，请在dashboard的模板文件夹中创建基本模板，该文件夹可扩展Horizon的基本模板，例如 openstack_dashboard/dashboards/my_custom_dashboard / templates/my_custom_dashboard/base.html。</p>
+<p>在此模板中，重新定义css块。（不要忘记包含_stylesheets.html，其中包括所有Horizon的默认样式表。）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;% extends &apos;base.html&apos; %&#125;</div><div class="line"></div><div class="line">&#123;% block css %&#125;</div><div class="line">  &#123;% include &quot;_stylesheets.html&quot; %&#125;</div><div class="line"></div><div class="line">  &#123;% load compress %&#125;</div><div class="line">  &#123;% compress css %&#125;</div><div class="line">  &lt;link href=&apos;&#123;&#123; STATIC_URL &#125;&#125;my_custom_dashboard/scss/my_custom_dashboard.scss&apos; type=&apos;text/scss&apos; media=&apos;screen&apos; rel=&apos;stylesheet&apos; /&gt;</div><div class="line">  &#123;% endcompress %&#125;</div><div class="line">&#123;% endblock %&#125;</div></pre></td></tr></table></figure>
+<p>然后，在openstack_dashboard/dashboards/my_custom_dashboard/static/my_custom_dashboard/scss/my_custom_dashboard.scss中自定义样式表。</p>
+<p>所有dashboard的模板都必须从自定义dashboard中base.html继承：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% extends &apos;my_custom_dashboard/base.html&apos; %&#125;</div><div class="line">...</div></pre></td></tr></table></figure>
+<h2 id="十、自定义Javascript"><a href="#十、自定义Javascript" class="headerlink" title="十、自定义Javascript"></a>十、自定义Javascript</h2><p>与添加自定义css（参见上文）类似，可以包含自定义javascript文件。</p>
+<p>所有Horizon的javascript文件都列在openstack_dashboard/template/horizon/_scripts.html模板中，该模板包含在的Horizon基本模板js块中。</p>
+<p>要添加自定义javascript文件，在openstack_dashboard/dashboards/my_custom_dashboard/templates/my_custom_dashboard/_scripts.html中创建，该模板扩展了horizon/_scripts.html。在此模板中覆盖包含你的自定义JavaScript文件的块custom_js_files：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;% extends &apos;horizon/_scripts.html&apos; %&#125;</div><div class="line"></div><div class="line">&#123;% block custom_js_files %&#125;</div><div class="line">    &lt;script src=&apos;&#123;&#123; STATIC_URL &#125;&#125;my_custom_dashboard/js/my_custom_js.js&apos; type=&apos;text/javascript&apos; charset=&apos;utf-8&apos;&gt;&lt;/script&gt;</div><div class="line">&#123;% endblock %&#125;</div></pre></td></tr></table></figure>
+<p>在dashboard自定义的基本模板中，openstack_dashboard/dashboards/ my_custom_dashboard/templates/my_custom_dashboard/base.html覆盖或包含自定义的_scripts.html的js块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;% block js %&#125;</div><div class="line">    &#123;% include &quot;my_custom_dashboard/_scripts.html&quot; %&#125;</div><div class="line">&#123;% endblock %&#125;</div></pre></td></tr></table></figure>
+<p>是一个压缩的js文件，包含Horizon和dashboard的自定义脚本。<br>此外, 在一些情况下需要将它们放在<head>标记。为此, 请将它们放在 horizon/_custom_head_js.html文件中。与上面提到的_scrips.html文件类似：</head></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script src=&apos;&#123;&#123; STATIC_URL &#125;&#125;/my_custom_dashboard/js/my_marketing_js.js&apos; type=&apos;text/javascript&apos; charset=&apos;utf-8&apos;&gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<p>或者可以将脚本直接粘贴到文件中，确保使用适当的标签</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;script type=&quot;text/javascript&quot;&gt;</div><div class="line">//some javascript</div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
+<h2 id="十一、自定义元属性"><a href="#十一、自定义元属性" class="headerlink" title="十一、自定义元属性"></a>十一、自定义元属性</h2><p>要将自定义元数据属性添加到项目的基本模板，请将它们包含在horizon/_custom_meta.html文件中。此文件的内容将在默认Horizon元数据属性标记之后插入到页面的<head>中</head></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenStack/" rel="tag"># OpenStack</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/22/2018112201-1/" rel="next" title="2018112201">
+                <i class="fa fa-chevron-left"></i> 2018112201
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#自定义Horizon"><span class="nav-number">1.</span> <span class="nav-text">自定义Horizon</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、自定义页面页脚"><span class="nav-number">1.2.</span> <span class="nav-text">四、自定义页面页脚</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、修改Dashboards-和-Panels"><span class="nav-number">1.3.</span> <span class="nav-text">五、修改Dashboards 和 Panels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、Horizon定制模块（覆盖）"><span class="nav-number">1.4.</span> <span class="nav-text">六、Horizon定制模块（覆盖）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义项目和用户表列"><span class="nav-number">1.5.</span> <span class="nav-text">自定义项目和用户表列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、自定义Angular-dashboards-对Angular不熟，这部分没有验证"><span class="nav-number">1.6.</span> <span class="nav-text">七、自定义Angular dashboards(对Angular不熟，这部分没有验证)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、Icons"><span class="nav-number">1.7.</span> <span class="nav-text">八、Icons</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#九、自定义CSS样式表"><span class="nav-number">1.8.</span> <span class="nav-text">九、自定义CSS样式表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#十、自定义Javascript"><span class="nav-number">1.9.</span> <span class="nav-text">十、自定义Javascript</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#十一、自定义元属性"><span class="nav-number">1.10.</span> <span class="nav-text">十一、自定义元属性</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
