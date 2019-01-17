@@ -1,0 +1,1035 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="框架 Django," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一、写在前面一直没有搞懂openstack horizon wsgi加载机制，这次抽时间看了下django 源码，顺便在horizon组件上进行了调试，同时参考学习了网上一些博客的源码阅读说明用以帮助理解，当然还没有理解透彻，仅当个学习笔记。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://bl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django 源码阅读：服务启动(wsgi)">
+<meta property="og:url" content="http://yoursite.com/2019/01/16/2019011601/index.html">
+<meta property="og:site_name" content="小工匠 – JP.Zhang">
+<meta property="og:description" content="一、写在前面一直没有搞懂openstack horizon wsgi加载机制，这次抽时间看了下django 源码，顺便在horizon组件上进行了调试，同时参考学习了网上一些博客的源码阅读说明用以帮助理解，当然还没有理解透彻，仅当个学习笔记。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://bl">
+<meta property="og:updated_time" content="2019-01-17T16:25:12.334Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Django 源码阅读：服务启动(wsgi)">
+<meta name="twitter:description" content="一、写在前面一直没有搞懂openstack horizon wsgi加载机制，这次抽时间看了下django 源码，顺便在horizon组件上进行了调试，同时参考学习了网上一些博客的源码阅读说明用以帮助理解，当然还没有理解透彻，仅当个学习笔记。
+邮箱地址：jpzhang.ht@gmail.com个人博客：https://jianpengzhang.github.io/CSDN博客：http://bl">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/01/16/2019011601/"/>
+
+
+
+
+
+  <title> Django 源码阅读：服务启动(wsgi) | 小工匠 – JP.Zhang </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小工匠 – JP.Zhang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/16/2019011601/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="jpzhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小工匠 – JP.Zhang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Django 源码阅读：服务启动(wsgi)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-16T01:59:35+08:00">
+                2019-01-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="一、写在前面"><a href="#一、写在前面" class="headerlink" title="一、写在前面"></a>一、写在前面</h1><p>一直没有搞懂openstack horizon wsgi加载机制，这次抽时间看了下django 源码，顺便在horizon组件上进行了调试，同时参考学习了网上一些博客的源码阅读说明用以帮助理解，当然还没有理解透彻，仅当个学习笔记。</p>
+<p>邮箱地址：jpzhang.ht@gmail.com<br>个人博客：<a href="https://jianpengzhang.github.io/" target="_blank" rel="external">https://jianpengzhang.github.io/</a><br>CSDN博客：<a href="http://blog.csdn.net/u011521019" target="_blank" rel="external">http://blog.csdn.net/u011521019</a></p>
+<a id="more"></a>￼<br># 二、入口文件<br>horizon 开发阶段都是通过: <code>python manage.py runserver 0.0.0.0:8001</code>开始的，该命令启用Django提供的轻量级的开发用的Web服务器。默认情况下，服务器运行在IP地址127.0.0.1的8000端口上。如果要自定义服务器端口和地址，可以显式地传递一个IP地址和端口号给它。例如和上面命令一样。<br>Horizon的manage.py 文件里只有简单的几行代码，基本上和其他django项目一样，这里主要通过horizon项目来学习Django 的启动入口。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">import os</div><div class="line">import sys</div><div class="line"></div><div class="line">from django.core.management import execute_from_command_line</div><div class="line"></div><div class="line">if __name__ == &quot;__main__&quot;:</div><div class="line">    # 将settings模块设置到环境变量中,os.environ[&apos;DJANGO_SETTINGS_MODULE&apos;]:openstack_dashboard.settings</div><div class="line">    os.environ.setdefault(&quot;DJANGO_SETTINGS_MODULE&quot;,</div><div class="line">                          &quot;openstack_dashboard.settings&quot;)</div><div class="line">    # sys.argv:[&apos;manage.py&apos;, &apos;runserver&apos;, &apos;0.0.0.0:8001&apos;]</div><div class="line">    # 运行ManagementUtility的简单方法。</div><div class="line">    # ManagementUtility：封装django-admin和manage.py程序的逻辑。</div><div class="line">    execute_from_command_line(sys.argv)</div></pre></td></tr></table></figure>
+<p>from django.core.management import execute_from_command_line当这行代码开始执行时，首先会去运行django.core.management.<strong>init</strong>.py这一整个文件，接着找到execute_from_command_line函数并将其导入到当前程序的命名空间中。</p>
+<p>由于整个django.core.management.<strong>init</strong>.py文件都是class类对象和function函数对象，很多时候很自然的就认为这个文件并没有执行任何命令，只是加载了这些个对象，然后在这些个对象中寻找是否包含有execute_from_command_line。最终忽视了其他很重要的代码块from和import。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">import functools</div><div class="line">import os</div><div class="line">import pkgutil</div><div class="line">import sys</div><div class="line">from collections import OrderedDict, defaultdict</div><div class="line">from difflib import get_close_matches</div><div class="line">from importlib import import_module</div><div class="line"></div><div class="line">import django</div><div class="line">from django.apps import apps</div><div class="line">… …</div></pre></td></tr></table></figure></p>
+<p>import django 这行代码运行了django.<strong>init</strong>.py文件。<br>from django.apps import apps这行代码运行了django.apps.<strong>init</strong>.py文件，然而整个django的开端就是从这里开始的，它落实了非常多的事情（例如：初始化日志模块、加载INSTALL_APP、检查各APP是否正常、检查缓存模块是否正常等），当一切无误时才会往下走，否则将会报错退出程序。</p>
+<p>manage.py:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">os.environ.setdefault(&quot;DJANGO_SETTINGS_MODULE&quot;,</div><div class="line">                      &quot;openstack_dashboard.settings&quot;)</div></pre></td></tr></table></figure></p>
+<p>这句话绑定了DJANGO_SETTINGS_MODULE的键值，然后将其加载。<br>设置完DJANGO_SETTINGS_MODULE环境变量之后，命令行参数的列表传到了 django/core/management/<strong>init</strong>.py 中的execute_from_command_line函数。<br>execute_from_command_line这个方法是一个工厂函数，它负责指挥ManagementUtility类利用execute方法来解析参数和启动wsgi服务。</p>
+<p>django/core/management/<strong>init</strong>.py:execute_from_command_line方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">def execute_from_command_line(argv=None):</div><div class="line">    &quot;&quot;&quot;Run a ManagementUtility.&quot;&quot;&quot;</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    实例化对象ManagementUtility对象后调用execute()</div><div class="line">    &quot;&quot;&quot;</div><div class="line"></div><div class="line">    utility = ManagementUtility(argv)</div><div class="line">    # execute方法来解析参数和启动wsgi服务</div><div class="line">    utility.execute()</div></pre></td></tr></table></figure></p>
+<p>django/core/management/<strong>init</strong>.py:ManagementUtility：命令管理工具</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">class ManagementUtility:</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Encapsulate the logic of the django-admin and manage.py utilities.</div><div class="line">    封装django-admin和manage.py程序的逻辑。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    def __init__(self, argv=None):</div><div class="line">        self.argv = argv or sys.argv[:] # 就是命令行参数</div><div class="line">        self.prog_name = os.path.basename(self.argv[0]) # 调用这个类的组件名，区分是django-admin还是manage.py;</div><div class="line">        if self.prog_name == &apos;__main__.py&apos;:</div><div class="line">            self.prog_name = &apos;python -m django&apos;</div><div class="line">        self.settings_exception = None # 记录异常</div><div class="line">        … …</div></pre></td></tr></table></figure>
+<p>在这里prog_name 就是 manage.py。</p>
+<p>实例化ManagementUtility后调用了 execute() 方法，这个函数主要处理子命令的执行，这里的子命令是相对于django-admin.py和manage.py的，举个例子：python manage.py runserver这里的runserver就是子命令。</p>
+<p>在这个方法中，会对命令参数进行处理。当解析的的命令是 runserver 时，会有两条路，第一个是执行自动重装的路线（监听文件的修改变化，并实现自动重载），通过 autoreload.check_errors(django.setup)() 完成。另一个路线是参数中有 –noreload 时，就用 django.setup() 来启动服务。<br>如果不是 runserver 而是其他命令，那么会对命令参数 self.argv[1] 进行判断，包括错误处理，是否是 help ，是否是 version ，根据不同的情况显示不同的信息。</p>
+<p>execute(self)函数中最重要的是最后一句，即前面的情况都不是，就进入 self.fetch_command(subcommand).run_from_argv(self.argv) ，这边分两步，一步是获取执行命令所需要的类，其次是将命令参数作为参数传递给执行函数执行(代码分析如下)：<br>django/core/management/<strong>init</strong>.py:execute(self):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div></pre></td><td class="code"><pre><div class="line">def execute(self):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Given the command-line arguments, figure out which subcommand is being</div><div class="line">    run, create a parser appropriate to that command, and run it.</div><div class="line">    给定命令行参数，找出正在运行的子命令，创建适合该命令的解析器，然后运行它。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    try:</div><div class="line">        # 获取命令行输入第一个参数,如果没有则为help subcommand，这里表示 runserver</div><div class="line">        subcommand = self.argv[1]</div><div class="line">    except IndexError:</div><div class="line">        subcommand = &apos;help&apos;  # Display help if no arguments were given.如果没有给出参数，则显示帮助。</div><div class="line"></div><div class="line">    # Preprocess options to extract --settings and --pythonpath.</div><div class="line">    # These options could affect the commands that are available, so they</div><div class="line">    # must be processed early.</div><div class="line">    parser = CommandParser(usage=&apos;%(prog)s subcommand [options] [args]&apos;, add_help=False, allow_abbrev=False) # 添加命令说明</div><div class="line">    parser.add_argument(&apos;--settings&apos;)</div><div class="line">    parser.add_argument(&apos;--pythonpath&apos;)</div><div class="line">    parser.add_argument(&apos;args&apos;, nargs=&apos;*&apos;)  # catch-all</div><div class="line">    try:</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        options:Namespace(args=[&apos;0.0.0.0:9000&apos;], pythonpath=None, settings=None)</div><div class="line">        args []</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        options, args = parser.parse_known_args(self.argv[2:]) # 解析后面的参数，options:Namespace(args=[],pythonpath=None,settings=None)</div><div class="line">        handle_default_options(options) # 如果options中的pythonpath或者settings有，则使用传入的路径与文件</div><div class="line">    except CommandError:</div><div class="line">        pass  # Ignore any option errors at this point.此时忽略任何选项错误。</div><div class="line"></div><div class="line">    try:</div><div class="line">        settings.INSTALLED_APPS # 当是django-admin命令输入时没有配置文件此时会报错，如果是已经生产的项目则可以导入配置文件中已经配置的应用</div><div class="line">    except ImproperlyConfigured as exc:</div><div class="line">        self.settings_exception = exc</div><div class="line">    except ImportError as exc:</div><div class="line">        self.settings_exception = exc</div><div class="line"></div><div class="line">    if settings.configured:</div><div class="line">        # Start the auto-reloading dev server even if the code is broken.</div><div class="line">        # The hardcoded condition is a code smell but we can&apos;t rely on a</div><div class="line">        # flag on the command class because we haven&apos;t located it yet.</div><div class="line">        if subcommand == &apos;runserver&apos; and &apos;--noreload&apos; not in self.argv:# 如果不是runserver并且没有关闭自动重载功能，则执行以下函数</div><div class="line">            try:</div><div class="line">                autoreload.check_errors(django.setup)() # 调用自动检测文件是否修改如果修改则自动重新启动Django服务</div><div class="line">            except Exception:</div><div class="line">                # The exception will be raised later in the child process</div><div class="line">                # started by the autoreloader. Pretend it didn&apos;t happen by</div><div class="line">                # loading an empty list of applications.</div><div class="line">                apps.all_models = defaultdict(OrderedDict)</div><div class="line">                apps.app_configs = OrderedDict()</div><div class="line">                apps.apps_ready = apps.models_ready = apps.ready = True</div><div class="line"></div><div class="line">                # Remove options not compatible with the built-in runserver</div><div class="line">                # (e.g. options for the contrib.staticfiles&apos; runserver).</div><div class="line">                # Changes here require manually testing as described in</div><div class="line">                # #27522.</div><div class="line">                _parser = self.fetch_command(&apos;runserver&apos;).create_parser(&apos;django&apos;, &apos;runserver&apos;)</div><div class="line">                _options, _args = _parser.parse_known_args(self.argv[2:])</div><div class="line">                for _arg in _args:</div><div class="line">                    self.argv.remove(_arg)</div><div class="line"></div><div class="line">        # In all other cases, django.setup() is required to succeed.</div><div class="line">        else:</div><div class="line">            django.setup() # 初始化django环境</div><div class="line"></div><div class="line">    self.autocomplete()# 检测是否是自动完成</div><div class="line"></div><div class="line">    if subcommand == &apos;help&apos;:# 如果解析命令为help</div><div class="line">        if &apos;--commands&apos; in args:</div><div class="line">            sys.stdout.write(self.main_help_text(commands_only=True) + &apos;\n&apos;)# 打印出help命令</div><div class="line">        elif not options.args:# 如果输入参数为空</div><div class="line">            sys.stdout.write(self.main_help_text() + &apos;\n&apos;)</div><div class="line">        else:</div><div class="line">            self.fetch_command(options.args[0]).print_help(self.prog_name, options.args[0])# 针对某个命令打印相应命令的帮助信息</div><div class="line">    # Special-cases: We want &apos;django-admin --version&apos; and</div><div class="line">    # &apos;django-admin --help&apos; to work, for backwards compatibility.</div><div class="line">    elif subcommand == &apos;version&apos; or self.argv[1:] == [&apos;--version&apos;]:# 如果输入的命令是打印版本信息</div><div class="line">        sys.stdout.write(django.get_version() + &apos;\n&apos;)# 则输出当前Django的版本</div><div class="line">    elif self.argv[1:] in ([&apos;--help&apos;], [&apos;-h&apos;]):# 如果输入参数中包括了--help -h 则打印帮助信息</div><div class="line">        sys.stdout.write(self.main_help_text() + &apos;\n&apos;)</div><div class="line">    else:</div><div class="line">        self.fetch_command(subcommand).run_from_argv(self.argv)# 如果命令行输入单个命令，则寻找该命令，然后执行输入的参数</div></pre></td></tr></table></figure></p>
+<p>前面几行不难看懂是进行参数获取的，后面到了解析这块又用到CommandParser这个类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># Preprocess options to extract --settings and --pythonpath.</div><div class="line"># These options could affect the commands that are available, so they</div><div class="line"># must be processed early.</div><div class="line">parser = CommandParser(usage=&apos;%(prog)s subcommand [options] [args]&apos;, add_help=False, allow_abbrev=False) # 添加命令说明</div><div class="line">parser.add_argument(&apos;--settings&apos;)</div><div class="line">parser.add_argument(&apos;--pythonpath&apos;)</div><div class="line">parser.add_argument(&apos;args&apos;, nargs=&apos;*&apos;)  # catch-all</div><div class="line">try:</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    options:Namespace(args=[&apos;0.0.0.0:9000&apos;], pythonpath=None, settings=None)</div><div class="line">    args []</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    options, args = parser.parse_known_args(self.argv[2:]) # 解析后面的参数，options:Namespace(args=[],pythonpath=None,settings=None)</div><div class="line">    handle_default_options(options) # 如果options中的pythonpath或者settings有，则使用传入的路径与文件</div><div class="line">except CommandError:</div><div class="line">    pass  # Ignore any option errors at this point.此时忽略任何选项错误。</div></pre></td></tr></table></figure>
+<p>通过进入该类查看实现过程，该类的路径为django/core/management/base.py中，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">class CommandParser(ArgumentParser):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Customized ArgumentParser class to improve some error messages and prevent</div><div class="line">    SystemExit in several occasions, as SystemExit is unacceptable when a</div><div class="line">    command is called programmatically.</div><div class="line">    定制ArgumentParser类来改进一些错误消息，并在某些情况下防止SystemExit，因为在以编程方式调用命令时SystemExit是不可接受的。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    def __init__(self, *, missing_args_message=None, called_from_command_line=None, **kwargs):</div><div class="line">        self.missing_args_message = missing_args_message</div><div class="line">        self.called_from_command_line = called_from_command_line</div><div class="line">        super().__init__(**kwargs)</div><div class="line"></div><div class="line">    def parse_args(self, args=None, namespace=None):</div><div class="line">        # Catch missing argument for a better error message</div><div class="line">        # 捕获缺少的参数以获得更好的错误消息</div><div class="line">        if (self.missing_args_message and</div><div class="line">                not (args or any(not arg.startswith(&apos;-&apos;) for arg in args))):</div><div class="line">            self.error(self.missing_args_message)</div><div class="line">        return super().parse_args(args, namespace)</div><div class="line"></div><div class="line">    def error(self, message):</div><div class="line">        if self.called_from_command_line:</div><div class="line">            super().error(message)</div><div class="line">        else:</div><div class="line">            raise CommandError(&quot;Error: %s&quot; % message)</div></pre></td></tr></table></figure></p>
+<p>可以看出这个类是对ArgumentParser的继承封装，而ArgumentParser是python基础类包中的一个类，这个函数的目的是将ArgumentParser封装成符合django内部调用的接口形式。</p>
+<p>argparse模块可以轻松编写用户友好的命令行界面。 程序定义了它需要的参数，argparse将弄清楚如何解析sys.argv中的参数。 当用户给程序提供无效参数时，argparse模块还会自动生成帮助和使用消息并发出错误。</p>
+<p>ArgumentParser通过parse_args()方法解析参数。 这将检查命令行，将每个参数转换为适当的类型，然后调用相应的操作。 在大多数情况下，这意味着将从命令行解析的属性构建一个简单的Namespace对象。</p>
+<p>不懂的自行参看其手册。<br><a href="https://docs.python.org/2/library/argparse.html" target="_blank" rel="external">ArgumentParser官方手册</a>。</p>
+<p>回过头来继续看execute函数。接下来的一段代码围绕着CommandParser进行。完成命令行的常规设置。运行到options, args = parser.parse_known_args(self.argv[2:])才开始进入解析的关键之处。<br>下面给出了python的官方文档中该函数的说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Sometimes a script may only parse a few of the command-line arguments, passing the remaining arguments on to another script or program. In these cases, the parse_known_args() method can be useful. It works much like parse_args() except that it does not produce an error when extra arguments are present. Instead, it returns a two item tuple containing the populated namespace and the list of remaining argument strings.</div></pre></td></tr></table></figure></p>
+<p>也就是说，这个函数将当前脚本需要命令参数和其他脚本所需的命令行进行分离，它的返回结果是一个tuple，包含一个填充好的命名空间和剩余的参数字符串列表。此处的options和args的结果形如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">options:Namespace(args=[&apos;0.0.0.0:8001&apos;], pythonpath=None, settings=None) </div><div class="line"></div><div class="line">args:self = &lt;django.core.management.ManagementUtility object at 0x7eff4f056ad0&gt;</div></pre></td></tr></table></figure></p>
+<p>代码接着运行，将前面函数填充好的命名空间（此处为options参数）传入handle_default_options这个方法去执行。handle_default_options同样在django/core/management/base.py文件中，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">def handle_default_options(options):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Include any default options that all commands should accept here</div><div class="line">    so that ManagementUtility can handle them before searching for</div><div class="line">    user commands.</div><div class="line">    包括所有命令在此处应接受的任何默认选项，以便ManagementUtility在搜索用户命令之前可以处理它们。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    </div><div class="line">    # 上述例子运行解析后，options的传递过来的值：Namespace(args=[&apos;0.0.0.0:8001&apos;], pythonpath=None, settings=None)</div><div class="line">    if options.settings:</div><div class="line">        os.environ[&apos;DJANGO_SETTINGS_MODULE&apos;] = options.settings</div><div class="line">    if options.pythonpath:</div><div class="line">        sys.path.insert(0, options.pythonpath)</div></pre></td></tr></table></figure>
+<p>它只是完成了两个目标，（1）options中包含setting则配置环境变量；（2）options中包含pythonpath则设置python模块的搜索路径。</p>
+<p>继续回到：execute函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">try:</div><div class="line">    settings.INSTALLED_APPS # 当是django-admin命令输入时没有配置文件此时会报错，如果是已经生产的项目则可以导入配置文件中已经配置的应用</div><div class="line">except ImproperlyConfigured as exc:</div><div class="line">    self.settings_exception = exc</div><div class="line">except ImportError as exc:</div><div class="line">    self.settings_exception = exc</div><div class="line"></div><div class="line">if settings.configured:</div><div class="line">    # Start the auto-reloading dev server even if the code is broken.</div><div class="line">    # The hardcoded condition is a code smell but we can&apos;t rely on a</div><div class="line">    # flag on the command class because we haven&apos;t located it yet.</div><div class="line">    if subcommand == &apos;runserver&apos; and &apos;--noreload&apos; not in self.argv:# 如果是runserver并且没有关闭自动重载功能，则执行以下函数</div><div class="line">        try:</div><div class="line">            autoreload.check_errors(django.setup)() # 调用自动检测文件是否修改如果修改则自动重新启动Django服务</div><div class="line">        except Exception:</div><div class="line">            # The exception will be raised later in the child process</div><div class="line">            # started by the autoreloader. Pretend it didn&apos;t happen by</div><div class="line">            # loading an empty list of applications.</div><div class="line">            apps.all_models = defaultdict(OrderedDict)</div><div class="line">            apps.app_configs = OrderedDict()</div><div class="line">            apps.apps_ready = apps.models_ready = apps.ready = True</div><div class="line"></div><div class="line">            # Remove options not compatible with the built-in runserver</div><div class="line">            # (e.g. options for the contrib.staticfiles&apos; runserver).</div><div class="line">            # Changes here require manually testing as described in</div><div class="line">            # #27522.</div><div class="line">            _parser = self.fetch_command(&apos;runserver&apos;).create_parser(&apos;django&apos;, &apos;runserver&apos;)</div><div class="line">            _options, _args = _parser.parse_known_args(self.argv[2:])</div><div class="line">            for _arg in _args:</div><div class="line">                self.argv.remove(_arg)</div><div class="line"></div><div class="line">    # In all other cases, django.setup() is required to succeed.</div><div class="line">    else:</div><div class="line">        django.setup() # 初始化django环境</div></pre></td></tr></table></figure></p>
+<p>settings.INSTALLED_APPS(django 的配置采用了懒加载机制，后续通过另外的博文进行说明)，这里即执行了django/conf/<strong>init__</strong>.py:class LazySettings(LazyObject)的<strong>getattr</strong>()函数，从全局settings更新此索引，使用 importlib.import_module 来加载’openstack_dashboard.settings’配置模块，完成全局Settings实例的初始化。实例化后，配置懒加载也就完成了，程序就回到 execute 函数，</p>
+<ul>
+<li>INSTALLED_APPS，它表示项目中哪些 app 处于激活状态。元组中的字符串，除了django默认自带的命令之外，就是我们自己定义的app，也就是用python manage.py所启动的app了。</li>
+</ul>
+<p>回到 execute 函数，接下去的处理分为两条路，会对命令参数进行处理。当解析的subcommand是 runserver 时，会有两条路，第一个是会自动重装（后续的博文进行说明）的路线，通过 autoreload.check_errors(django.setup)() 代理完成。另一个路线是参数中有 –noreload 时，就用 django.setup() 来启动服务。</p>
+<p>这里执行：<code>autoreload.check_errors(django.setup)()</code>其实也是调用django.setup方法；check_errors()，一个装饰器函数，用来检查捕捉一些错误，而django.setup方法:<br>路径：django/<strong>init</strong>.py:setup()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">def setup(set_prefix=True):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Configure the settings (this happens as a side effect of accessing the</div><div class="line">    first setting), configure logging and populate the app registry.</div><div class="line">    Set the thread-local urlresolvers script prefix if `set_prefix` is True.</div><div class="line">    负责初始化日志模块以及所有应用</div><div class="line">    配置设置，配置日志记录并填充应用程序注册表。 如果`set_prefix`为True，则设置thread-local urlresolvers脚本前缀。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    from django.apps import apps</div><div class="line">    from django.conf import settings</div><div class="line">    from django.urls import set_script_prefix</div><div class="line">    from django.utils.log import configure_logging</div><div class="line"></div><div class="line">    configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)</div><div class="line">    if set_prefix:</div><div class="line">        set_script_prefix(</div><div class="line">            &apos;/&apos; if settings.FORCE_SCRIPT_NAME is None else settings.FORCE_SCRIPT_NAME</div><div class="line">        )</div><div class="line">    apps.populate(settings.INSTALLED_APPS)</div></pre></td></tr></table></figure></p>
+<p>这里主要是这个，apps.populate(settings.INSTALLED_APPS)，加载应用程序配置和模型。</p>
+<p>做了几件事情：</p>
+<ul>
+<li>app_config = AppConfig.create(entry)生成了一个AppConfig实例self.app_configs[app_config.label] = app_config将所有的app实例放到一个order_dict中维护。</li>
+<li>app_config.import_models(all_models)  导入models.py 这里不展开，具体可以看django/apps/registry.py</li>
+<li>这些准备工作完成后，这里调用了类中自有的一个方法autocomlete，这个函数主要的功能是通过BASH去输出执行建议。</li>
+<li>如果不是 runserver 而是其他命令，那么会对命令参数 self.argv[1] 进行判断，包括错误处理，是否是 help ，是否是 version ，根据不同的情况展示不同的信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">if subcommand == &apos;help&apos;:# 如果解析命令为help</div><div class="line">    if &apos;--commands&apos; in args:</div><div class="line">        sys.stdout.write(self.main_help_text(commands_only=True) + &apos;\n&apos;)# 打印出help命令</div><div class="line">    elif not options.args:# 如果输入参数为空</div><div class="line">        sys.stdout.write(self.main_help_text() + &apos;\n&apos;)</div><div class="line">    else:</div><div class="line">        self.fetch_command(options.args[0]).print_help(self.prog_name, options.args[0])# 针对某个命令打印相应命令的帮助信息</div><div class="line"># Special-cases: We want &apos;django-admin --version&apos; and</div><div class="line"># &apos;django-admin --help&apos; to work, for backwards compatibility.</div><div class="line">elif subcommand == &apos;version&apos; or self.argv[1:] == [&apos;--version&apos;]:# 如果输入的命令是打印版本信息</div><div class="line">    sys.stdout.write(django.get_version() + &apos;\n&apos;)# 则输出当前Django的版本</div><div class="line">elif self.argv[1:] in ([&apos;--help&apos;], [&apos;-h&apos;]):# 如果输入参数中包括了--help -h 则打印帮助信息</div><div class="line">    sys.stdout.write(self.main_help_text() + &apos;\n&apos;)</div><div class="line">else:</div><div class="line">    self.fetch_command(subcommand).run_from_argv(self.argv)# 如果命令行输入单个命令，则寻找该命令，然后执行输入的参数</div></pre></td></tr></table></figure>
+<p>最重要的是最后一句，即前面的情况都不是，就进入 self.fetch_command(subcommand).run_from_argv(self.argv) ，这边分两步，一步是会根据subcommand（这是我们执行python manage.py rumserver时传入的第二个参数：runserver），去django.core.management.commands中查找对应的command类，其次是将命令参数作为参数传递给执行函数执行(run_from_argv(self.argv))。</p>
+<ul>
+<li><p>self.fetch_command:<br>是利用django内置的命令管理工具去匹配到具体的模块，例如self.fetch_command(subcommand)其实就相当于是self.fetch_command(‘runserver’)，它最终找到了django.contrib.staticfiles.management.commands.runserver.Command这个命令工具。</p>
+<p>django中的命令工具代码组织采用的是策略模式+接口模式，也就是说django.core.management.commands这个目录下面存在各种命令工具，每个工具下面都有一个Command接口，当匹配到’runserver’时调用’runserver’命令工具的Command接口，当匹配到’migrate’时调用’migrate’命令工具的Command接口。</p>
+</li>
+<li><p>run_from_argv(self.argv):<br>run_from_argv的作用是初始化中间件、启动服务，也就是拉起wgsi(但实际上并不是由它来直接完成，而是由后续很多其他代码来完成)。  </p>
+</li>
+</ul>
+<p>django/core/management/<strong>init</strong>.py:fetch_command(self, subcommand):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">def fetch_command(self, subcommand):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Try to fetch the given subcommand, printing a message with the</div><div class="line">    appropriate command called from the command line (usually</div><div class="line">    &quot;django-admin&quot; or &quot;manage.py&quot;) if it can&apos;t be found.</div><div class="line">    要获取给定的子命令，如果找不到，则使用从命令行调用的相应命令（通常为“django-admin”或“manage.py”）打印消息。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # Get commands outside of try block to prevent swallowing exceptions</div><div class="line">    # get_commands() 返回是一个命令与模块映射作用的字典，字典的key是命令名称，value是这个命令实现所在的文件路径。</div><div class="line">    commands = get_commands()# 获取所有支持的命令</div><div class="line">    try:</div><div class="line">        # 这里runserver指令对应的返回的app_name应该为&apos;django.contrib.staticfiles&apos; -&gt; &apos;runserver&apos;: &apos;django.contrib.staticfiles&apos;,</div><div class="line">        app_name = commands[subcommand]# 获取命令名称所在的路径或者实例</div><div class="line">    except KeyError:</div><div class="line">        if os.environ.get(&apos;DJANGO_SETTINGS_MODULE&apos;):</div><div class="line">            # If `subcommand` is missing due to misconfigured settings, the</div><div class="line">            # following line will retrigger an ImproperlyConfigured exception</div><div class="line">            # (get_commands() swallows the original one) so the user is</div><div class="line">            # informed about it.</div><div class="line">            # 如果“subcommand”由于错误配置的设置而丢失，那么下面一行将重新触发一个错误配置的异常(get_commands()吞并原始异常)，以便通知用户。</div><div class="line">            settings.INSTALLED_APPS</div><div class="line">        else:</div><div class="line">            sys.stderr.write(&quot;No Django settings specified.\n&quot;)</div><div class="line">        possible_matches = get_close_matches(subcommand, commands)</div><div class="line">        sys.stderr.write(&apos;Unknown command: %r&apos; % subcommand)</div><div class="line">        if possible_matches:</div><div class="line">            sys.stderr.write(&apos;. Did you mean %s?&apos; % possible_matches[0])</div><div class="line">        sys.stderr.write(&quot;\nType &apos;%s help&apos; for usage.\n&quot; % self.prog_name)</div><div class="line">        sys.exit(1)</div><div class="line">    if isinstance(app_name, BaseCommand):# 判断app_name是否是基本命令的实例，还是命令的路径</div><div class="line">        # If the command is already loaded, use it directly.</div><div class="line">        # 如果已加载该命令，请直接使用它。</div><div class="line">        klass = app_name</div><div class="line">    else:</div><div class="line">        # 动态加载模块,模块是通过 load_command_class 来动态加载的</div><div class="line">        klass = load_command_class(app_name, subcommand)# 如果是路径则导入该命令</div><div class="line">    return klass # 将命令的实例化对象返回</div></pre></td></tr></table></figure></p>
+<p>get_commands() 是返回是一个命令与模块映射作用的字典,字典的key是命令名称，value是这个命令实现所在的文件路径（get_commands通过pkgutil<br>第三方类库来做的）:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">&#123;&apos;check&apos;: &apos;django.core&apos;, </div><div class="line">&apos;compilemessages&apos;: &apos;django.core&apos;, </div><div class="line">&apos;createcachetable&apos;: &apos;django.core&apos;, </div><div class="line">&apos;dbshell&apos;: &apos;django.core&apos;, </div><div class="line">&apos;diffsettings&apos;: &apos;django.core&apos;, </div><div class="line">&apos;dumpdata&apos;: &apos;django.core&apos;, </div><div class="line">&apos;flush&apos;: &apos;django.core&apos;, </div><div class="line">&apos;inspectdb&apos;: &apos;django.core&apos;, </div><div class="line">&apos;loaddata&apos;: &apos;django.core&apos;, </div><div class="line">&apos;makemessages&apos;: &apos;django.core&apos;, </div><div class="line">&apos;makemigrations&apos;: &apos;django.core&apos;, </div><div class="line">&apos;migrate&apos;: &apos;django.core&apos;, </div><div class="line">&apos;runserver&apos;: &apos;django.contrib.staticfiles&apos;, </div><div class="line">&apos;sendtestemail&apos;: &apos;django.core&apos;, </div><div class="line">&apos;shell&apos;: &apos;django.core&apos;, </div><div class="line">&apos;showmigrations&apos;: &apos;django.core&apos;, </div><div class="line">&apos;sqlflush&apos;: &apos;django.core&apos;, </div><div class="line">&apos;sqlmigrate&apos;: &apos;django.core&apos;, </div><div class="line">&apos;sqlsequencereset&apos;: &apos;django.core&apos;, </div><div class="line">&apos;squashmigrations&apos;: &apos;django.core&apos;, </div><div class="line">&apos;startapp&apos;: &apos;django.core&apos;, </div><div class="line">&apos;startproject&apos;: &apos;django.core&apos;, </div><div class="line">&apos;test&apos;: &apos;django.core&apos;, </div><div class="line">&apos;testserver&apos;: &apos;django.core&apos;, </div><div class="line">&apos;pull_catalog&apos;: &apos;horizon&apos;, </div><div class="line">&apos;startdash&apos;: &apos;horizon&apos;, </div><div class="line">&apos;startpanel&apos;: &apos;horizon&apos;, </div><div class="line">&apos;compress&apos;: &apos;compressor&apos;, </div><div class="line">&apos;mtime_cache&apos;: &apos;compressor&apos;, </div><div class="line">&apos;collectstatic&apos;: &apos;django.contrib.staticfiles&apos;, </div><div class="line">&apos;findstatic&apos;: &apos;django.contrib.staticfiles&apos;, </div><div class="line">&apos;clearsessions&apos;: &apos;django.contrib.sessions&apos;, </div><div class="line">&apos;changepassword&apos;: &apos;django.contrib.auth&apos;, </div><div class="line">&apos;createsuperuser&apos;: &apos;django.contrib.auth&apos;, </div><div class="line">&apos;remove_stale_contenttypes&apos;: &apos;django.contrib.contenttypes&apos;, </div><div class="line">&apos;extract_messages&apos;: &apos;openstack_dashboard&apos;, </div><div class="line">&apos;make_web_conf&apos;: &apos;openstack_dashboard&apos;, </div><div class="line">&apos;migrate_settings&apos;: &apos;openstack_dashboard&apos;, </div><div class="line">&apos;update_catalog&apos;: &apos;openstack_dashboard&apos;&#125;</div></pre></td></tr></table></figure></p>
+<p>接着根据“runserver”，返回命令路径：django.contrib.staticfiles，然后通过isinstance() 函数来判断django.contrib.staticfiles是否是BaseCommand类型，因为这里是app_name命令的路径，并不是一个对象，如果是对象就是属于BaseCommand。本质上这里主要用来判断django.contrib.staticfiles是否已经加载，如果加载直接返回该模块，如果不是就通过load_command_class函数动态加载模块。<br>load_command_class的目录在django/core/management/<strong>init</strong>.py中，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">def load_command_class(app_name, name):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Given a command name and an application name, return the Command</div><div class="line">    class instance. Allow all errors raised by the import process</div><div class="line">    (ImportError, AttributeError) to propagate.</div><div class="line">    给定命令名称和应用程序名称，返回Command类实例。 允许导入过程引发的所有错误（ImportError，AttributeError）传播。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # 如执行 runserver 命令的模块就是 django.contrib.staticfiles.management.commands.runserver</div><div class="line">    # 返回该模块中定义的 Command 类的实例。获得实例后调用了 run_from_argv(self.argv) :</div><div class="line">    module = import_module(&apos;%s.management.commands.%s&apos; % (app_name, name)) # 导入命令所在的包</div><div class="line">    return module.Command()</div></pre></td></tr></table></figure>
+<p>这个方法调用python中importlib库中的import_module方法将模块动态载入，然后返回载入模块的Command()。参看management/commands下的每个文件，发现都拥有一个Command类对应相应的命令。<br>综上所诉，之前这个fetch_command返回了一个命令对象。<br>接着研究run_from_argv函数，这个函数同样位于django/core/management/base.py中，它是之前返回的BaseCommand对象中的一个方法，子类django.contrib.staticfiles.management.commands.runserver没有实现该函数，则调用父类BaseCommand中的。</p>
+<p>runserver继承对象分布 依次按顺序如下：<br>    •   django.contrib.staticfiles.management.commands.runserver.Command<br>    •   django.core.management.commands.runserver.Command<br>    •   django.core.management.base.BaseCommand<br>    •   object</p>
+<p>source/django/core/management/base.py:run_from_argv如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">def run_from_argv(self, argv):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Set up any environment changes requested (e.g., Python path</div><div class="line">    and Django settings), then run this command. If the</div><div class="line">    command raises a ``CommandError``, intercept it and print it sensibly</div><div class="line">    to stderr. If the ``--traceback`` option is present or the raised</div><div class="line">    ``Exception`` is not ``CommandError``, raise it.</div><div class="line">    设置所请求的任何环境更改（例如，Python路径和Django设置），然后运行此命令。 如果该命令引发一个``CommandError``，</div><div class="line">    则拦截它并将其合理地打印到stderr。 如果存在``--traceback``选项或者引发的``Exception``不是``CommandError``，则将其抬起。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    self._called_from_command_line = True</div><div class="line"></div><div class="line">    # create_parser接受两个参数，第一个是prog_name，即谁执行这个指令，此处是&apos;manage.py&apos;</div><div class="line">    # 第二个是subcommand，即运行的是什么指令，此处是&apos;runserver&apos;</div><div class="line">    parser = self.create_parser(argv[0], argv[1])</div><div class="line"></div><div class="line">    # options:Namespace(addrport=&apos;0.0.0.0:8001&apos;, insecure_serving=False, no_color=False, pythonpath=None, settings=None, traceback=False, use_ipv6=False, use_reloader=True, use_static_handler=True, use_threading=True, verbosity=1)</div><div class="line">    # 返回一个Namespace的实例</div><div class="line">    options = parser.parse_args(argv[2:])</div><div class="line"></div><div class="line">    # 对象转成字典,这里执行完cmd_options的值为：&#123;&apos;use_static_handler&apos;: True, &apos;settings&apos;: None, &apos;pythonpath&apos;: None, &apos;verbosity&apos;: 1, &apos;traceback&apos;: False, &apos;addrport&apos;: &apos;0.0.0.0:8001&apos;, &apos;no_color&apos;: False, &apos;use_ipv6&apos;: False, &apos;use_threading&apos;: True, &apos;use_reloader&apos;: True, &apos;insecure_serving&apos;: False&#125;</div><div class="line">    cmd_options = vars(options)</div><div class="line"></div><div class="line">    # Move positional args out of options to mimic legacy optparse</div><div class="line">    args = cmd_options.pop(&apos;args&apos;, ())</div><div class="line"></div><div class="line">    # 设置默认参数</div><div class="line">    handle_default_options(options)</div><div class="line">    try:</div><div class="line">        # 异常捕获包裹的execute</div><div class="line">        # 在 execute 中会做一些设置参数的错误检查，然后设置句柄:</div><div class="line">        self.execute(*args, **cmd_options)</div><div class="line">    except Exception as e:</div><div class="line">        if options.traceback or not isinstance(e, CommandError):</div><div class="line">            raise</div><div class="line"></div><div class="line">        # SystemCheckError takes care of its own formatting.</div><div class="line">        if isinstance(e, SystemCheckError):</div><div class="line">            self.stderr.write(str(e), lambda x: x)</div><div class="line">        else:</div><div class="line">            self.stderr.write(&apos;%s: %s&apos; % (e.__class__.__name__, e))</div><div class="line">        sys.exit(1)</div><div class="line">    finally:</div><div class="line">        try:</div><div class="line">            connections.close_all()</div><div class="line">        except ImproperlyConfigured:</div><div class="line">            # Ignore if connections aren&apos;t setup at this point (e.g. no</div><div class="line">            # configured settings).</div><div class="line">            pass</div></pre></td></tr></table></figure></p>
+<p>这个函数的作用就是设置好环境变量，然后取运行指令。这个文件的结构有点类似于前面的execute，当前类对象的run_from_argv方法中调用了self.execute(*args, **cmd_options)方法，由于请求的入口是django.contrib.staticfiles.management.commands.runserver.Command对象，因此python并不会去执行BaseCommand.execute而是执行django.core.management.commands.runserver.Command.execute，最后通过super(Command, self).execute(*args, **options)来执行BaseComand.execute。</p>
+<p>django.core.management.commands.runserver.Command.execute函数在子类重新定义，这部分的代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">def execute(self, *args, **options):# 调用处理方法</div><div class="line">    if options[&apos;no_color&apos;]:</div><div class="line">        # We rely on the environment because it&apos;s currently the only</div><div class="line">        # way to reach WSGIRequestHandler. This seems an acceptable</div><div class="line">        # compromise considering `runserver` runs indefinitely.</div><div class="line">        # 我们依赖环境，因为这是目前到达WSGIRequestHandler的唯一途径。考虑到“runserver”无限期地运行，这似乎是一个可以接受的折衷方案。</div><div class="line">        os.environ[&quot;DJANGO_COLORS&quot;] = &quot;nocolor&quot;</div><div class="line">    super().execute(*args, **options)# 调用父类的执行方法</div></pre></td></tr></table></figure></p>
+<p>没有做太多的事情，返回调用父类的execute执行方法，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">def execute(self, *args, **options):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Try to execute this command, performing system checks if needed (as</div><div class="line">    controlled by the ``requires_system_checks`` attribute, except if</div><div class="line">    force-skipped).</div><div class="line">    尝试执行此命令，在需要时执行系统检查（由``requires_system_checks``属性控制，除非强制跳过）</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # 这里传递进来的options的值为：&#123;&apos;use_static_handler&apos;: True, &apos;settings&apos;: None, &apos;pythonpath&apos;: None, &apos;verbosity&apos;: 1, &apos;traceback&apos;: False, &apos;addrport&apos;: &apos;0.0.0.0:8001&apos;, &apos;no_color&apos;: False, &apos;use_ipv6&apos;: False, &apos;use_threading&apos;: True, &apos;use_reloader&apos;: True, &apos;insecure_serving&apos;: False&#125;</div><div class="line">    if options[&apos;force_color&apos;] and options[&apos;no_color&apos;]:</div><div class="line">        # --no-color和--force-color选项不能一起使用</div><div class="line">        raise CommandError(&quot;The --no-color and --force-color options can&apos;t be used together.&quot;)</div><div class="line">    if options[&apos;force_color&apos;]:</div><div class="line">        self.style = color_style(force_color=True)</div><div class="line">    elif options[&apos;no_color&apos;]:</div><div class="line">        self.style = no_style()</div><div class="line">        self.stderr.style_func = None</div><div class="line">    if options.get(&apos;stdout&apos;):</div><div class="line">        self.stdout = OutputWrapper(options[&apos;stdout&apos;])</div><div class="line">    if options.get(&apos;stderr&apos;):</div><div class="line">        self.stderr = OutputWrapper(options[&apos;stderr&apos;], self.stderr.style_func)</div><div class="line"></div><div class="line">    if self.requires_system_checks and not options.get(&apos;skip_checks&apos;):</div><div class="line">        self.check()</div><div class="line">    if self.requires_migrations_checks:</div><div class="line">        self.check_migrations()</div><div class="line">    output = self.handle(*args, **options)</div><div class="line">    if output:</div><div class="line">        if self.output_transaction:</div><div class="line">            connection = connections[options.get(&apos;database&apos;, DEFAULT_DB_ALIAS)]</div><div class="line">            output = &apos;%s\n%s\n%s&apos; % (</div><div class="line">                self.style.SQL_KEYWORD(connection.ops.start_transaction_sql()),</div><div class="line">                output,</div><div class="line">                self.style.SQL_KEYWORD(connection.ops.end_transaction_sql()),</div><div class="line">            )</div><div class="line">        self.stdout.write(output)</div><div class="line">    return output</div></pre></td></tr></table></figure></p>
+<p>execute 中会做一些设置参数的错误检查，然后设置句柄，关键的核心在output = self.handle(*args, **options)这一行，这里又调用了自己的一个自有方法。<br>基本流转过程:</p>
+<ul>
+<li>BaseComand.execute方法中调用了self.handle(即：django.core.management.commands.runserver.Command.handle)</li>
+<li>Command.handle方法中调用了self.run(即：django.core.management.commands.runserver.Command.run)。</li>
+<li>Command.run方法调用了self.inner_run(即：django.core.management.commands.runserver.Command.inner_run)。</li>
+<li>Command.inner_run方法调用了self.get_handler(即：django.contrib.staticfiles.management.commands.runserver.Command.get_handler)</li>
+<li>Command.inner_run方法调用了run(即：django.core.servers.basehttp.run)。</li>
+</ul>
+<p>代码：django/core/management/commands/runserver.py:handle(self, *args, **options)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">def handle(self, *args, **options):# 调用处理方法</div><div class="line">    if not settings.DEBUG and not settings.ALLOWED_HOSTS:# 检查是否是debug模式，如果不是则ALLOWED_HOSTS不能为空</div><div class="line">        raise CommandError(&apos;You must set settings.ALLOWED_HOSTS if DEBUG is False.&apos;)</div><div class="line"></div><div class="line">    self.use_ipv6 = options[&apos;use_ipv6&apos;]</div><div class="line">    if self.use_ipv6 and not socket.has_ipv6:# 检查输入参数中是否是ipv6格式，检查当前python是否支持ip</div><div class="line">        raise CommandError(&apos;Your Python does not support IPv6.&apos;)</div><div class="line">    self._raw_ipv6 = False</div><div class="line">    if not options[&apos;addrport&apos;]:# 如果输入参数中没有输入端口则使用默认的端口</div><div class="line">        self.addr = &apos;&apos; # 默认地址</div><div class="line">        self.port = self.default_port # 默认端口</div><div class="line">    else: # 如果设置了ip地址和端口号，用正则匹配出来</div><div class="line">        m = re.match(naiveip_re, options[&apos;addrport&apos;]) # 检查匹配的ip格式</div><div class="line">        if m is None:</div><div class="line">            raise CommandError(&apos;&quot;%s&quot; is not a valid port number &apos;</div><div class="line">                               &apos;or address:port pair.&apos; % options[&apos;addrport&apos;])</div><div class="line">        # self.addr:&apos;0.0.0.0&apos;; self.port:&apos;9000&apos;</div><div class="line">        self.addr, _ipv4, _ipv6, _fqdn, self.port = m.groups()# 找出匹配的数据</div><div class="line">        if not self.port.isdigit(): # 检查端口是否为数字</div><div class="line">            raise CommandError(&quot;%r is not a valid port number.&quot; % self.port)</div><div class="line">        if self.addr:</div><div class="line">            if _ipv6:# 检查解析出的地址是否合法的ipv6地址</div><div class="line">                self.addr = self.addr[1:-1]</div><div class="line">                self.use_ipv6 = True</div><div class="line">                self._raw_ipv6 = True</div><div class="line">            elif self.use_ipv6 and not _fqdn:</div><div class="line">                raise CommandError(&apos;&quot;%s&quot; is not a valid IPv6 address.&apos; % self.addr)</div><div class="line">    if not self.addr:# 如果没有输入ip地址则使用默认的地址</div><div class="line">        self.addr = self.default_addr_ipv6 if self.use_ipv6 else self.default_addr</div><div class="line">        self._raw_ipv6 = self.use_ipv6</div><div class="line">    self.run(**options) # 运行命令</div></pre></td></tr></table></figure></p>
+<p>前面的一大段就是运行runserver时候执行的一些参数准备，关键部分是最后一行的self.run(**options)，run 方法主要时调用了 inner_run(*args, **options) 这个方法:</p>
+<p>django/core/management/commands/runserver.py:run(self, **options)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">def run(self, **options):</div><div class="line">    &quot;&quot;&quot;Run the server, using the autoreloader if needed.如果需要，使用自动重载程序运行服务器</div><div class="line">    run 方法主要时调用了 inner_run(*args, **options) 这个方法:</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    use_reloader = options[&apos;use_reloader&apos;]# 根据配置是否自动加载，如果没有输入则default=True</div><div class="line"></div><div class="line">    if use_reloader:# 当开启了自动加载时，则调用自动启动运行</div><div class="line">        # 如果开启了自动重启功能则，调用django/utils/autoreload.py中的mian函数处理，</div><div class="line">        autoreload.main(self.inner_run, None, options)</div><div class="line">    else:</div><div class="line">        self.inner_run(None, **options)# 如果没有开启文件更新自动重启服务功能则直接运行</div></pre></td></tr></table></figure></p>
+<p>在这里自动加载为True，即options[‘use_reloader’]:True。会调用django.utils.autoreload中的python_reloader新开一个线程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">def python_reloader(main_func, args, kwargs):</div><div class="line">    if os.environ.get(&quot;RUN_MAIN&quot;) == &quot;true&quot;:# 获取环境变量是RUN_MAIN是否为&quot;true&quot;，第一次运行时，RUN_MAIN没有设置，此时会运行restart_with_reloader函数</div><div class="line">        _thread.start_new_thread(main_func, args, kwargs)# 开启子线程运行服务程序</div><div class="line">        try:</div><div class="line">            reloader_thread() # 调用监控函数</div><div class="line">        except KeyboardInterrupt:</div><div class="line">            pass</div><div class="line">    else:</div><div class="line">        try:</div><div class="line">            exit_code = restart_with_reloader()# 调用重启函数</div><div class="line">            if exit_code &lt; 0:</div><div class="line">                os.kill(os.getpid(), -exit_code)</div><div class="line">            else:</div><div class="line">                sys.exit(exit_code)</div><div class="line">        except KeyboardInterrupt:</div><div class="line">            pass</div><div class="line"></div><div class="line"></div><div class="line">def main(main_func, args=None, kwargs=None):</div><div class="line">    if args is None:</div><div class="line">        args = ()</div><div class="line">    if kwargs is None:</div><div class="line">        kwargs = &#123;&#125;</div><div class="line"></div><div class="line">    wrapped_main_func = check_errors(main_func)# 添加对man_func的出错处理方法</div><div class="line">    python_reloader(wrapped_main_func, args, kwargs)# 新开一个线程</div></pre></td></tr></table></figure>
+<p>这里的main_func是commands/runserver.py中的inner_run方法：<br>django/core/management/commands/runserver.py:inner_run(self, *args, **options)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">def inner_run(self, *args, **options):</div><div class="line">    # If an exception was silenced in ManagementUtility.execute in order</div><div class="line">    # to be raised in the child process, raise it now.</div><div class="line">    autoreload.raise_last_exception()</div><div class="line"></div><div class="line">    threading = options[&apos;use_threading&apos;]# 是否开启多线程模式，当不传入时则默认为多线程模式运行</div><div class="line">    # &apos;shutdown_message&apos; is a stealth option.</div><div class="line">    shutdown_message = options.get(&apos;shutdown_message&apos;, &apos;&apos;)</div><div class="line">    quit_command = &apos;CTRL-BREAK&apos; if sys.platform == &apos;win32&apos; else &apos;CONTROL-C&apos;# 打印停止服务信息</div><div class="line">    # 输出基础信息</div><div class="line">    self.stdout.write(&quot;Performing system checks…\n\n&quot;)# 标准输出输出数据</div><div class="line">    self.check(display_num_errors=True)# 检查</div><div class="line">    # Need to check migrations here, so can&apos;t use the</div><div class="line">    # requires_migrations_check attribute.</div><div class="line">    self.check_migrations()# 检查是否migrations是否与数据库一致</div><div class="line">    now = datetime.now().strftime(&apos;%B %d, %Y - %X&apos;)# 获取当前时间</div><div class="line">    # 打印时间等信息</div><div class="line">    self.stdout.write(now)</div><div class="line">    self.stdout.write((</div><div class="line">        &quot;Django version %(version)s, using settings %(settings)r\n&quot;</div><div class="line">        &quot;Starting development server at %(protocol)s://%(addr)s:%(port)s/\n&quot;</div><div class="line">        &quot;Quit the server with %(quit_command)s.\n&quot;</div><div class="line">    ) % &#123;</div><div class="line">        &quot;version&quot;: self.get_version(),</div><div class="line">        &quot;settings&quot;: settings.SETTINGS_MODULE,</div><div class="line">        &quot;protocol&quot;: self.protocol,</div><div class="line">        &quot;addr&quot;: &apos;[%s]&apos; % self.addr if self._raw_ipv6 else self.addr,</div><div class="line">        &quot;port&quot;: self.port,</div><div class="line">        &quot;quit_command&quot;: quit_command,</div><div class="line">    &#125;)</div><div class="line"></div><div class="line">    try:</div><div class="line">        # 获取处理 http 的句柄,这部分除了有熟悉的信息输出外，重要的是这个句柄：</div><div class="line">        handler = self.get_handler(*args, **options)# 获取信息处理的handler,默认返回wsgi</div><div class="line">        run(self.addr, int(self.port), handler,# 调用运行函数</div><div class="line">            ipv6=self.use_ipv6, threading=threading, server_cls=self.server_cls)</div><div class="line">    except socket.error as e:</div><div class="line">        # Use helpful error messages instead of ugly tracebacks.</div><div class="line">        ERRORS = &#123;</div><div class="line">            errno.EACCES: &quot;You don&apos;t have permission to access that port.&quot;,</div><div class="line">            errno.EADDRINUSE: &quot;That port is already in use.&quot;,</div><div class="line">            errno.EADDRNOTAVAIL: &quot;That IP address can&apos;t be assigned to.&quot;,</div><div class="line">        &#125;</div><div class="line">        try:</div><div class="line">            error_text = ERRORS[e.errno]</div><div class="line">        except KeyError:</div><div class="line">            error_text = e</div><div class="line">        self.stderr.write(&quot;Error: %s&quot; % error_text)</div><div class="line">        # Need to use an OS exit because sys.exit doesn&apos;t work in a thread</div><div class="line">        os._exit(1)</div><div class="line">    except KeyboardInterrupt:</div><div class="line">        if shutdown_message:</div><div class="line">            self.stdout.write(shutdown_message)</div><div class="line">        sys.exit(0)</div></pre></td></tr></table></figure></p>
+<p>这部分除了有熟悉的信息输出外，重要的是这个句柄：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># 获取处理 http 的句柄,这部分除了有熟悉的信息输出外，重要的是这个句柄：</div><div class="line">handler = self.get_handler(*args, **options)# 获取WSGIHandler</div><div class="line">run(self.addr, int(self.port), handler,# 调用运行函数</div><div class="line">    ipv6=self.use_ipv6, threading=threading, server_cls=self.server_cls)</div></pre></td></tr></table></figure></p>
+<p>get<em>handler 函数最终会返回一个 WSGIHandler 的实例。WSGIHandler 类只实现了 def \</em>_call__(self, environ, start_response) , 使它本身能够成为 WSGI 中的应用程序, 并且实现 <strong>call</strong> 能让类的行为跟函数一样。</p>
+<p>这里要特别强调一下self.get_handler，它非常重要，三个重点:</p>
+<hr>
+<pre><code>1.  因为它负责获取WSGIHandler。
+2.  由于请求入口是django.contrib.staticfiles.management.commands.runserver.Command，正好它本来就有get_handler这个方法，因此并没有采用django.core.management.commands.runserver.Command.get_handler。
+3.  self.get_handler并不会返回一个常规的WSGIHandler而是返回一个StaticFilesHandler。
+4.  StaticFilesHandler类对象继承WSGIHandler，它的目的是为了判断每个请求，如果是常规的url请求则直接分配到某个view中去执行，如果是静态文件规则那么将不会找view而是响应这个文件。
+</code></pre><hr>
+<p>django/contrib/staticfiles/management/commands/runserver.py:get_handler(self, *args, **options)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">def get_handler(self, *args, **options):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Return the static files serving handler wrapping the default handler,</div><div class="line">    if static files should be served. Otherwise return the default handler.</div><div class="line">    如果应该提供静态文件，则返回默认处理程序的静态文件服务处理程序。 否则返回默认处理程序。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    handler = super().get_handler(*args, **options)</div><div class="line">    use_static_handler = options[&apos;use_static_handler&apos;]</div><div class="line">    insecure_serving = options[&apos;insecure_serving&apos;]</div><div class="line">    if use_static_handler and (settings.DEBUG or insecure_serving):</div><div class="line">        return StaticFilesHandler(handler)</div><div class="line">    return handler</div></pre></td></tr></table></figure>
+<p>这里handler = super().get_handler(*args, **options)调用父类django.core.management.commands.runserver.Command.get_handler函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">def get_handler(self, *args, **options):</div><div class="line">    &quot;&quot;&quot;Return the default WSGI handler for the runner.&quot;&quot;&quot;</div><div class="line">    # 返回运行器的默认WSGI处理程序。</div><div class="line">    # get_handler 函数最终会返回一个 WSGIHandler 的实例。WSGIHandler 类只实现了 def __call__(self, environ, start_response) ,</div><div class="line">    # 使它本身能够成为 WSGI 中的应用程序, 并且实现 __call__ 能让类的行为跟函数一样。</div><div class="line">    return get_internal_wsgi_application()</div></pre></td></tr></table></figure></p>
+<p>django.core.servers.basehttp.get_internal__wsgi_application()：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">def get_internal_wsgi_application():</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Load and return the WSGI application as configured by the user in</div><div class="line">    ``settings.WSGI_APPLICATION``. With the default ``startproject`` layout,</div><div class="line">    this will be the ``application`` object in ``projectname/wsgi.py``.</div><div class="line"></div><div class="line">    This function, and the ``WSGI_APPLICATION`` setting itself, are only useful</div><div class="line">    for Django&apos;s internal server (runserver); external WSGI servers should just</div><div class="line">    be configured to point to the correct application object directly.</div><div class="line"></div><div class="line">    If settings.WSGI_APPLICATION is not set (is ``None``), return</div><div class="line">    whatever ``django.core.wsgi.get_wsgi_application`` returns.</div><div class="line">    按照用户在`settings.WSGI_APPLICATION``中的配置加载并返回WSGI应用程序。</div><div class="line">    使用默认的``startproject``布局，这将是``projectname / wsgi.py``中的``application``对象。</div><div class="line">    这个函数和``WSGI_APPLICATION``设置本身只对Django的内部服务器（runserver）有用。</div><div class="line">    外部WSGI服务器应该配置为直接指向正确的应用程序对象。</div><div class="line">    如果没有设置settings.WSGI_APPLICATION（是``None``），则返回``django.core.wsgi.get_wsgi_application``返回的内容。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    from django.conf import settings# 导入配置文件</div><div class="line">    app_path = getattr(settings, &apos;WSGI_APPLICATION&apos;)# 获取配置文件中的wsgi运行的路径</div><div class="line">    if app_path is None:</div><div class="line">        return get_wsgi_application()# 如果配置文件中没有则django/core/wsgi中的WSGIHandler</div><div class="line"></div><div class="line">    try:</div><div class="line">        return import_string(app_path) # 如果配置文件中配置，则使用配置文件中的包</div><div class="line">    except ImportError as err:</div><div class="line">        raise ImproperlyConfigured(</div><div class="line">            &quot;WSGI application &apos;%s&apos; could not be loaded; &quot;</div><div class="line">            &quot;Error importing module.&quot; % app_path</div><div class="line">        ) from err</div></pre></td></tr></table></figure></p>
+<p>没有设置settings.WSGI_APPLICATION（是<code>None</code>），则返回<code>django.core.wsgi.get_wsgi_application</code>返回的内容。在这里horizon的settings中没有设置WSGI_APPLICATION。</p>
+<p>django.core.wsgi.py: get_wsgi_application():<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">def get_wsgi_application():</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    The public interface to Django&apos;s WSGI support. Return a WSGI callable.</div><div class="line"></div><div class="line">    Avoids making django.core.handlers.WSGIHandler a public API, in case the</div><div class="line">    internal WSGI implementation changes or moves in the future.</div><div class="line">    Django的WSGI支持的公共接口。返回一个可调用的WSGI。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # setup是加载log和settings.INSTALLED_APPS</div><div class="line">    django.setup(set_prefix=False)# 初始化django环境</div><div class="line">    </div><div class="line">    # 返回WSGIHhadler类的一个实例</div><div class="line">    return WSGIHandler()</div></pre></td></tr></table></figure></p>
+<p>source/django/<strong>init</strong>.py:setup(set_prefix=True)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">def setup(set_prefix=True):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Configure the settings (this happens as a side effect of accessing the</div><div class="line">    first setting), configure logging and populate the app registry.</div><div class="line">    Set the thread-local urlresolvers script prefix if `set_prefix` is True.</div><div class="line">    负责初始化日志模块以及所有应用</div><div class="line">    配置设置，配置日志记录并填充应用程序注册表。 如果`set_prefix`为True，则设置thread-local urlresolvers脚本前缀。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    from django.apps import apps</div><div class="line">    from django.conf import settings</div><div class="line">    from django.urls import set_script_prefix</div><div class="line">    from django.utils.log import configure_logging</div><div class="line"></div><div class="line">    configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)# 配置日志记录</div><div class="line">    if set_prefix:</div><div class="line">        set_script_prefix(</div><div class="line">            # 设置前缀</div><div class="line">            &apos;/&apos; if settings.FORCE_SCRIPT_NAME is None else settings.FORCE_SCRIPT_NAME</div><div class="line">        )</div><div class="line">    # 初始化所有应用,但调试的时候发现没有加载注册，标记下，回头继续看app加载。</div><div class="line">    apps.populate(settings.INSTALLED_APPS)</div></pre></td></tr></table></figure></p>
+<p>完成<code>django.setup(set_prefix=False)</code>执行后，紧接着返回<code>return WSGIHandler()</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">class WSGIHandler(base.BaseHandler):</div><div class="line">    request_class = WSGIRequest</div><div class="line"></div><div class="line">    def __init__(self, *args, **kwargs):</div><div class="line">        super().__init__(*args, **kwargs)</div><div class="line">        self.load_middleware()# 加载中间件</div><div class="line"></div><div class="line">    def __call__(self, environ, start_response):</div><div class="line">        set_script_prefix(get_script_name(environ))</div><div class="line">        signals.request_started.send(sender=self.__class__, environ=environ)# 向接受通知的注册者发送通知</div><div class="line">        request = self.request_class(environ)# 调用WSGIRequest实例化请求</div><div class="line">        response = self.get_response(request) # 调用处理方法处理request</div><div class="line"></div><div class="line">        response._handler_class = self.__class__# 设置_handler_class 为当前处理的类</div><div class="line"></div><div class="line">        status = &apos;%d %s&apos; % (response.status_code, response.reason_phrase)# 相应结果的状态码和对应描述</div><div class="line">        # 获取响应的响应头部信息，获取响应的cookie信息</div><div class="line">        response_headers = [</div><div class="line">            *response.items(),</div><div class="line">            *((&apos;Set-Cookie&apos;, c.output(header=&apos;&apos;)) for c in response.cookies.values()),</div><div class="line">        ]</div><div class="line">        start_response(status, response_headers)# 设置响应的响应头部信息</div><div class="line">        if getattr(response, &apos;file_to_stream&apos;, None) is not None and environ.get(&apos;wsgi.file_wrapper&apos;):# 判断响应中是否有文件传输</div><div class="line">            response = environ[&apos;wsgi.file_wrapper&apos;](response.file_to_stream)</div><div class="line">        return response# 返回处理结果</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">class WSGIHandler(base.BaseHandler):</div><div class="line">    request_class = WSGIRequest</div><div class="line"></div><div class="line">    def __init__(self, *args, **kwargs):</div><div class="line">        super().__init__(*args, **kwargs)</div><div class="line">        self.load_middleware()# 加载中间件</div><div class="line"></div><div class="line">    def __call__(self, environ, start_response):</div><div class="line">        set_script_prefix(get_script_name(environ))</div><div class="line">        signals.request_started.send(sender=self.__class__, environ=environ)# 向接受通知的注册者发送通知</div><div class="line">        request = self.request_class(environ)# 调用WSGIRequest实例化请求</div><div class="line">        response = self.get_response(request) # 调用处理方法处理request</div><div class="line"></div><div class="line">        response._handler_class = self.__class__# 设置_handler_class 为当前处理的类</div><div class="line"></div><div class="line">        status = &apos;%d %s&apos; % (response.status_code, response.reason_phrase)# 相应结果的状态码和对应描述</div><div class="line">        # 获取响应的响应头部信息，获取响应的cookie信息</div><div class="line">        response_headers = [</div><div class="line">            *response.items(),</div><div class="line">            *((&apos;Set-Cookie&apos;, c.output(header=&apos;&apos;)) for c in response.cookies.values()),</div><div class="line">        ]</div><div class="line">        start_response(status, response_headers)# 设置响应的响应头部信息</div><div class="line">        if getattr(response, &apos;file_to_stream&apos;, None) is not None and environ.get(&apos;wsgi.file_wrapper&apos;):# 判断响应中是否有文件传输</div><div class="line">            response = environ[&apos;wsgi.file_wrapper&apos;](response.file_to_stream)</div><div class="line">        return response# 返回处理结果</div></pre></td></tr></table></figure>
+<p>通过__init__()初始化一个WSGIHandler对象，同时通过<code>self.load_middleware()</code>加载中间件。其中self.load_middleware在当前调用的是父类的实现。<br>完成上述调用后返回到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">def get_handler(self, *args, **options):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Return the static files serving handler wrapping the default handler,</div><div class="line">    if static files should be served. Otherwise return the default handler.</div><div class="line">    如果应该提供静态文件，则返回默认处理程序的静态文件服务处理程序。 否则返回默认处理程序。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    handler = super().get_handler(*args, **options)</div><div class="line">    use_static_handler = options[&apos;use_static_handler&apos;]# 使用静态处理程序,这里返回True</div><div class="line">    insecure_serving = options[&apos;insecure_serving&apos;]</div><div class="line">    # 判断当前环境是否是debug模式或者是不安全的模式</div><div class="line">    if use_static_handler and (settings.DEBUG or insecure_serving):</div><div class="line">        # use_static_handler:True,settings.DEBUG:True最终返回StaticFilesHandler对象</div><div class="line">        return StaticFilesHandler(handler)</div><div class="line">    return handler</div></pre></td></tr></table></figure></p>
+<p>这里跟进去看下StaticFilesHandler(handler)<br>source/django/contrib/staticfiles/handlers.py:class StaticFilesHandler(WSGIHandler)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">class StaticFilesHandler(WSGIHandler):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    WSGI middleware that intercepts calls to the static files directory, as</div><div class="line">    defined by the STATIC_URL setting, and serves those files.</div><div class="line">    WSGI中间件拦截对STATIC_URL设置所定义的静态文件目录的调用，并为这些文件提供服务。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # May be used to differentiate between handler types (e.g. in a</div><div class="line">    # request_finished signal)</div><div class="line">    handles_files = True</div><div class="line"></div><div class="line">    def __init__(self, application):</div><div class="line">        self.application = application</div><div class="line">        # 初始化静态目录</div><div class="line">        # ParseResult(scheme=&apos;&apos;, netloc=&apos;&apos;, path=&apos;/dashboard/static/&apos;, params=&apos;&apos;, query=&apos;&apos;, fragment=&apos;&apos;)</div><div class="line">        self.base_url = urlparse(self.get_base_url())</div><div class="line">        super().__init__()</div></pre></td></tr></table></figure></p>
+<p>到这里完成handler = self.get_handler(*args, **options)，返回一个StaticFilesHandler，StaticFilesHandler类对象继承WSGIHandler，它的目的是为了判断每个请求，如果是常规的url请求则直接分配到某个view中去执行，如果是静态文件规则那么将不会找view而是响应这个文件。<br>接着回到django/core/management/commands/runserver.py(149)inner_run()，执行：<code>run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGIServer)</code><br>django/core/servers/basehttp.py(158)run():<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">def run(addr, port, wsgi_handler, ipv6=False, threading=False, server_cls=WSGIServer):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    这是一个标准的 wsgi 实现。httpd_cls 是 WSGIServer 类，最终的实例化方法在父类 SocketServer 中的 TCPServer 和 BaseServer 中。</div><div class="line">    包括初始化线程，初始化网络句柄，像下面的 __is_shut_down 和 __shutdown_request 都是在其中初始化的。</div><div class="line">    addr:&apos;0.0.0.0&apos;</div><div class="line">    port:8001</div><div class="line">    wsgi_handler:&lt;django.contrib.staticfiles.handlers.StaticFilesHandler object at 0x7ff03a14c5d0&gt;</div><div class="line">    ipv6:False</div><div class="line">    threading:True</div><div class="line">    server_cls:&lt;class &apos;django.core.servers.basehttp.WSGIServer&apos;&gt;</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    server_address = (addr, port)# 服务监听的地址和端口</div><div class="line">    if threading:# 如果是多线程运行</div><div class="line">        # 生成一个继承自socketserver.ThreadingMixIn, WSGIServer的类</div><div class="line">        httpd_cls = type(&apos;WSGIServer&apos;, (socketserver.ThreadingMixIn, server_cls), &#123;&#125;)</div><div class="line">    else:</div><div class="line">        httpd_cls = server_cls</div><div class="line">    httpd = httpd_cls(server_address, WSGIRequestHandler, ipv6=ipv6)# 实例化该类</div><div class="line">    if threading:</div><div class="line">        # ThreadingMixIn.daemon_threads indicates how threads will behave on an</div><div class="line">        # abrupt shutdown; like quitting the server by the user or restarting</div><div class="line">        # by the auto-reloader. True means the server will not wait for thread</div><div class="line">        # termination before it quits. This will make auto-reloader faster</div><div class="line">        # and will prevent the need to kill the server manually if a thread</div><div class="line">        # isn&apos;t terminating correctly.</div><div class="line">        # ThreadingMixIn.daemon_threads表示线程在突然关闭时的行为方式;</div><div class="line">        # 比如用户退出服务器或通过自动重新加载器重新启动。</div><div class="line">        # True表示服务器在退出之前不会等待线程终止。</div><div class="line">        # 这将使自动重新加载器更快，并且如果线程没有正确终止，将防止需要手动终止服务器。</div><div class="line">        httpd.daemon_threads = True# True表示服务器在退出之前不会等待线程终止。</div><div class="line">    httpd.set_app(wsgi_handler)# 设置服务类的处理handler</div><div class="line">    httpd.serve_forever()</div></pre></td></tr></table></figure></p>
+<p>django.core.servers.basehttp.run工厂函数负责只会各个对象负责启动wsgi服务。<br>wsgi_handler参数，这里传递的是StaticFilesHandler。</p>
+<p>httpd_cls = type(‘WSGIServer’, (socketserver.ThreadingMixIn, server_cls), {}) 是一种很特殊的写法，通过代码块中WSGIServer类对象可以看出它只继承了wsgiref.simple_server.WSGIServer、object这两个类对象，但是通过type这种写法相当于是强行赋予它一个socketserver.ThreadingMixIn继承对象，它的用意是每次调用这个对象的时候都会单独启用一个线程来处理。另外虽然 WSGIServer 只继承了 wsgiref.simple_server.WSGIServer、object两个对象，但是wsgiref.simple_server.WSGIServer却&lt;递归式&gt;的继承了一堆对象，下面完整的列出WSGIServer继承家族。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">1、django.core.servers.basehttp.WSGIServer;</div><div class="line">2、wsgiref.simple_server.WSGIServer:实现Python WSGI协议的BaseHTTPServer;</div><div class="line">3、socketserver.ThreadingMixIn:用于处理新线程中的每个请求的混合类; </div><div class="line">4、http.server.HTTPServer</div><div class="line">5、socketserver.TCPServer</div><div class="line">6、socketserver.BaseServer</div><div class="line">7、object</div></pre></td></tr></table></figure></p>
+<p>httpd = httpd_cls(server_address, WSGIRequestHandler, ipv6=ipv6)这行代码非常重要，因为它是WSGI服务器与django之间相互通信的唯一枢纽通道，也就是说，当WSGI服务对象收到socket请求后，会将这个请求传递给django的WSGIRequestHandler。<br>httpd.set_app(wsgi_handler)是将django.contrib.staticfiles.handlers.StaticFilesHandler 传递给WSGIServer当作一个application，当WSGIServer收到网络请求后，可以将数据分发给django.core.servers.basehttp.WSGIRequestHandler，最终由django.core.servers.basehttp.WSGIRequestHandler将数据传递给application(即：django.contrib.staticfiles.handlers.StaticFilesHandler)。<br>httpd.serve.forever()启动非堵塞网络监听服务。</p>
+<p><strong>小结</strong><br>上面所有的过程都是django内部代码的为了启动服务而做的准备，简单的把流程给列出来。</p>
+<pre><code>1.  解析运行 python manage.py 所提供的参数，例如: runserver.
+2.  根据参数 找到相对应的 命令管理工具。
+3.  加载所有的app。
+4.  检查端口、ipv4检测、ipv6检测、端口是否占用、线程检查、orm对象检查(表是否创建)。
+5.  实例化WSGIRequestHandler，并且将它注册到python Lib库中的WSGIServer中。
+6.  最后启动python Lib库中的WSGIServer。
+</code></pre><h1 id="二、处理请求"><a href="#二、处理请求" class="headerlink" title="二、处理请求"></a>二、处理请求</h1><p>接下来的部分是python Lib库中的WSGIServer运作过程中，如何将接收到的请求分发会django的WSGIRequestHandler。</p>
+<p>/usr/lib/python2.7/SocketServer.py<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div></pre></td><td class="code"><pre><div class="line">class BaseServer:</div><div class="line">    timeout = None</div><div class="line"></div><div class="line">    def __init__(self, server_address, RequestHandlerClass):</div><div class="line">        &quot;&quot;&quot;Constructor.  May be extended, do not override.&quot;&quot;&quot;</div><div class="line">        self.server_address = server_address</div><div class="line">        self.RequestHandlerClass = RequestHandlerClass</div><div class="line">        self.__is_shut_down = threading.Event()</div><div class="line">        self.__shutdown_request = False</div><div class="line">        </div><div class="line">    def serve_forever(self, poll_interval=0.5):</div><div class="line">    &quot;&quot;&quot;Handle one request at a time until shutdown.</div><div class="line"></div><div class="line">    Polls for shutdown every poll_interval seconds. Ignores</div><div class="line">    self.timeout. If you need to do periodic tasks, do them in</div><div class="line">    another thread.</div><div class="line">    一次处理一个请求直到关闭，每0.5秒遍历一次文件描述符。忽略</div><div class="line">    self.timeout。 如果您需要定期执行任务，请执行此操作另一个线程。</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    # self.__is_shut_down = threading.Event()</div><div class="line">    # Python threading模块提供Event对象用于线程间通信,Python 通过threading.Event()产生一个event对象。event对象维护一个内部标志（标志初始值为False），通过set()将其置为True。wait(timeout)则用于堵塞线程直至Flag被set（或者超时，可选的），isSet()用于查询标志位是否为True，Clear()则用于清除标志位（使之为False）。</div><div class="line">    self.__is_shut_down.clear()</div><div class="line">    try:</div><div class="line">        while not self.__shutdown_request:</div><div class="line">            # XXX: Consider using another file descriptor or</div><div class="line">            # connecting to the socket to wake this up instead of</div><div class="line">            # polling. Polling reduces our responsiveness to a</div><div class="line">            # shutdown request and wastes cpu at all other times.</div><div class="line">            # 考虑使用另一个文件描述符或连接到套接字来唤醒它而不是轮询。 轮询降低了我们对关闭请求的响应速度，并在其他所有时间浪费cpu。</div><div class="line">            r, w, e = _eintr_retry(select.select, [self], [], [],</div><div class="line">                                   poll_interval)</div><div class="line">            if self in r:</div><div class="line">                self._handle_request_noblock()</div><div class="line">    finally:</div><div class="line">        self.__shutdown_request = False</div><div class="line">        self.__is_shut_down.set()</div><div class="line"></div><div class="line"></div><div class="line">    def _handle_request_noblock(self):</div><div class="line">        &quot;&quot;&quot;Handle one request, without blocking.</div><div class="line">    </div><div class="line">        I assume that select.select has returned that the socket is</div><div class="line">        readable before this function was called, so there should be</div><div class="line">        no risk of blocking in get_request().</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        try:</div><div class="line">            request, client_address = self.get_request()</div><div class="line">        except socket.error:</div><div class="line">            return</div><div class="line">        if self.verify_request(request, client_address):</div><div class="line">            try:</div><div class="line">                self.process_request(request, client_address)</div><div class="line">            except:</div><div class="line">                self.handle_error(request, client_address)</div><div class="line">                self.shutdown_request(request)</div><div class="line">        else:</div><div class="line">            self.shutdown_request(request)</div><div class="line">            </div><div class="line">         </div><div class="line">    def verify_request(self, request, client_address):</div><div class="line">        &quot;&quot;&quot;Verify the request.  May be overridden.</div><div class="line">    </div><div class="line">        Return True if we should proceed with this request.</div><div class="line">    </div><div class="line">        &quot;&quot;&quot;</div><div class="line">        return True</div><div class="line">        </div><div class="line">        </div><div class="line">    def process_request(self, request, client_address):</div><div class="line">        &quot;&quot;&quot;Call finish_request.</div><div class="line">    </div><div class="line">        Overridden by ForkingMixIn and ThreadingMixIn.</div><div class="line">        调用finish_request。 由ForkingMixIn和ThreadingMixIn重写。</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        self.finish_request(request, client_address)</div><div class="line">        self.shutdown_request(request)#关闭请求</div><div class="line">            </div><div class="line">    def finish_request(self, request, client_address):</div><div class="line">        &quot;&quot;&quot;Finish one request by instantiating RequestHandlerClass.</div><div class="line">        通过实例化RequestHandlerClass完成一个请求。</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        self.RequestHandlerClass(request, client_address, self)</div></pre></td></tr></table></figure></p>
+<p>上面服务启动的最后一个动作是httpd.serve_forever，调用的是socketserver.BaseServer.serve_forever方法。该方法采用了selector网络模型进行等待数据，每0.5秒遍历一次文件描述符，当有数据进来时，ready变量会是一个socket请求对象，这时会将后续工作转交给self._handler_request_noblock方法(即：socketserver.BaseServer._handler_request_noblock)去处理。<br>socketserver.BaseServer._handler_request_noblock方法基本没做什么事情(self.verify_request压根就没有检查任何东西)，直接就把后续工作转交给 socketserver.BaseServer.process_request 方法。<br>socketserver.BaseServer.process_request也没做什么事情，直接就将后续工作转交给socketserver.BaseServer.finish_request方法，只不过在最后加了一条关闭请求的命令。<br>socketserver.BaseServer.finish_request也没做什么事情，直接就将后续工作转交给socketserver.BaseServer.RequestHandlerClass。<br>socketserver.BaseServer.RequestHandlerClass是由上面<code>httpd = httpd_cls(server_address, WSGIRequestHandler, ipv6=ipv6)</code>传递过来的参数django.core.servers.basehttp.WSGIRequestHandler。 也就是说当执行self.RequestHandler(request, client_address, self)时等同于执行django.core.servers.basehttp.WSGIRequestHandler(request, client_address, self)。</p>
+<p><strong>小结</strong><br>serve_forever开启了一个while来无限监听网络层的scoket请求，当一条请求过来时，就层层转交到django.core.servers.basehttp.WSGIRequestHandler手中。</p>
+<p>django.core.servers.basehttp.py 单独列出WSGIRequestHandler代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div></pre></td><td class="code"><pre><div class="line">class WSGIRequestHandler(simple_server.WSGIRequestHandler):</div><div class="line">    protocol_version = &apos;HTTP/1.1&apos;</div><div class="line"></div><div class="line">    def address_string(self):</div><div class="line">        # Short-circuit parent method to not call socket.getfqdn</div><div class="line">        return self.client_address[0]</div><div class="line"></div><div class="line">    def log_message(self, format, *args):</div><div class="line">        extra = &#123;</div><div class="line">            &apos;request&apos;: self.request,</div><div class="line">            &apos;server_time&apos;: self.log_date_time_string(),</div><div class="line">        &#125;</div><div class="line">        if args[1][0] == &apos;4&apos;:</div><div class="line">            # 0x16 = Handshake, 0x03 = SSL 3.0 or TLS 1.x</div><div class="line">            if args[0].startswith(&apos;\x16\x03&apos;):</div><div class="line">                extra[&apos;status_code&apos;] = 500</div><div class="line">                logger.error(</div><div class="line">                    &quot;You&apos;re accessing the development server over HTTPS, but &quot;</div><div class="line">                    &quot;it only supports HTTP.\n&quot;, extra=extra,</div><div class="line">                )</div><div class="line">                return</div><div class="line"></div><div class="line">        if args[1].isdigit() and len(args[1]) == 3:</div><div class="line">            status_code = int(args[1])</div><div class="line">            extra[&apos;status_code&apos;] = status_code</div><div class="line"></div><div class="line">            if status_code &gt;= 500:</div><div class="line">                level = logger.error</div><div class="line">            elif status_code &gt;= 400:</div><div class="line">                level = logger.warning</div><div class="line">            else:</div><div class="line">                level = logger.info</div><div class="line">        else:</div><div class="line">            level = logger.info</div><div class="line"></div><div class="line">        level(format, *args, extra=extra)</div><div class="line"></div><div class="line">    def get_environ(self):</div><div class="line">        # Strip all headers with underscores in the name before constructing</div><div class="line">        # the WSGI environ. This prevents header-spoofing based on ambiguity</div><div class="line">        # between underscores and dashes both normalized to underscores in WSGI</div><div class="line">        # env vars. Nginx and Apache 2.4+ both do this as well.</div><div class="line">        for k in self.headers:</div><div class="line">            if &apos;_&apos; in k:</div><div class="line">                del self.headers[k]</div><div class="line"></div><div class="line">        return super().get_environ()</div><div class="line"></div><div class="line">    def handle(self):</div><div class="line">        self.close_connection = True</div><div class="line">        self.handle_one_request()</div><div class="line">        while not self.close_connection:</div><div class="line">            self.handle_one_request()</div><div class="line">        try:</div><div class="line">            self.connection.shutdown(socket.SHUT_WR)</div><div class="line">        except (socket.error, AttributeError):</div><div class="line">            pass</div><div class="line"></div><div class="line">    def handle_one_request(self):</div><div class="line">        &quot;&quot;&quot;Copy of WSGIRequestHandler.handle() but with different ServerHandler&quot;&quot;&quot;</div><div class="line">        self.raw_requestline = self.rfile.readline(65537)</div><div class="line">        if len(self.raw_requestline) &gt; 65536:</div><div class="line">            self.requestline = &apos;&apos;</div><div class="line">            self.request_version = &apos;&apos;</div><div class="line">            self.command = &apos;&apos;</div><div class="line">            self.send_error(414)</div><div class="line">            return</div><div class="line"></div><div class="line">        if not self.parse_request():  # An error code has been sent, just exit</div><div class="line">            return</div><div class="line"></div><div class="line">        handler = ServerHandler(</div><div class="line">            self.rfile, self.wfile, self.get_stderr(), self.get_environ()</div><div class="line">        )</div><div class="line">        handler.request_handler = self      # backpointer for logging &amp; connection closing</div><div class="line">        handler.run(self.server.get_app())</div></pre></td></tr></table></figure></p>
+<p>继续分析，socketserver.BaseServer.RequestHandler(request, client_address, self)等同于django.core.servers.basehttp.WSGIRequestHandler(request, client_address, self)。</p>
+<p>首先django.core.servers.basehttp.WSGIRequestHandler的继承分布：</p>
+<ul>
+<li>django.core.servers.basehttp.WSGIRequestHandler(django/core/servers/basehttp.py)</li>
+<li>wsgiref.simple_server.WSGIRequestHandler(/usr/lib/python2.7/wsgiref)</li>
+<li>http.server.BaseHTTPRequestHandler(/usr/local/lib/python2.7/dist-packages/http)</li>
+<li>socketserver.StreamRequestHandler</li>
+<li>socketserver.BaseRequestHandler</li>
+<li>object</li>
+</ul>
+<p>从代码上看django.core.servers.basehttp.WSGIRequestHandler并没有init或者call方法，因此需要遍历所有父类对象。</p>
+<p>最终在socketserver.BaseRequestHandler中看到了init实例初始化方法，它调用了self.handle方法(即回调了：django.core.servers.basehttp.WSGIRequestHandler.handle)。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">class WSGIRequestHandler(simple_server.WSGIRequestHandler):</div><div class="line">       def get_environ(self):</div><div class="line">        # Strip all headers with underscores in the name before constructing</div><div class="line">        # the WSGI environ. This prevents header-spoofing based on ambiguity</div><div class="line">        # between underscores and dashes both normalized to underscores in WSGI</div><div class="line">        # env vars. Nginx and Apache 2.4+ both do this as well.</div><div class="line">        for k in self.headers:</div><div class="line">            if &apos;_&apos; in k:</div><div class="line">                del self.headers[k]</div><div class="line"></div><div class="line">        return super().get_environ()</div><div class="line"></div><div class="line">    def handle(self):</div><div class="line">        self.close_connection = True</div><div class="line">        self.handle_one_request()</div><div class="line">        while not self.close_connection:</div><div class="line">            self.handle_one_request() # 这里</div><div class="line">        try:</div><div class="line">            self.connection.shutdown(socket.SHUT_WR)</div><div class="line">        except (socket.error, AttributeError):</div><div class="line">            pass</div><div class="line"></div><div class="line">    def handle_one_request(self):</div><div class="line">        &quot;&quot;&quot;Copy of WSGIRequestHandler.handle() but with different ServerHandler&quot;&quot;&quot;</div><div class="line">        self.raw_requestline = self.rfile.readline(65537)</div><div class="line">        if len(self.raw_requestline) &gt; 65536:</div><div class="line">            self.requestline = &apos;&apos;</div><div class="line">            self.request_version = &apos;&apos;</div><div class="line">            self.command = &apos;&apos;</div><div class="line">            self.send_error(414)</div><div class="line">            return</div><div class="line"></div><div class="line">        if not self.parse_request():  # An error code has been sent, just exit</div><div class="line">            return</div><div class="line"></div><div class="line">        handler = ServerHandler(</div><div class="line">            self.rfile, self.wfile, self.get_stderr(), self.get_environ()</div><div class="line">        )# 这里实例化了ServerHandler对象。</div><div class="line">        handler.request_handler = self      # backpointer for logging &amp; connection closing</div><div class="line">        handler.run(self.server.get_app())# 意思是将django.contrib.staticfiles.handlers.StaticFilesHandler转交给ServerHandler去运行。</div></pre></td></tr></table></figure>
+<p>handler = ServerHandler(self.rfile, self.wfile, self.get_stderr(), self.get_environ())实例化了ServerHandler对象。<br>handler.run(self.server.get_app())，意思是将django.contrib.staticfiles.handlers.StaticFilesHandler转交给ServerHandler去运行。</p>
+<p>ServerHandler对象并没有run方法，它的继承分布：</p>
+<ul>
+<li>django.core.servers.basehttp.ServerHandler(django/core/servers/basehttp.py)</li>
+<li>wsgiref.simple_server.ServerHandler(/usr/lib/python2.7/wsgiref)</li>
+<li>wsgiref.handlers.SimpleHandler(/usr/lib/python2.7/wsgiref)</li>
+<li>wsgiref.handlers.BaseHandler</li>
+<li>object</li>
+</ul>
+<p>最终在 wsgiref.handlers.BaseHandler 中找到了run方法。<br>wsgiref.handlers.py:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">def run(self, application):</div><div class="line">    &quot;&quot;&quot;Invoke the application&quot;&quot;&quot;</div><div class="line">    # Note to self: don&apos;t move the close()!  Asynchronous servers shouldn&apos;t</div><div class="line">    # call close() from finish_response(), so if you close() anywhere but</div><div class="line">    # the double-error branch here, you&apos;ll break asynchronous servers by</div><div class="line">    # prematurely closing.  Async servers must return from &apos;run()&apos; without</div><div class="line">    # closing if there might still be output to iterate over.</div><div class="line">    try:</div><div class="line">        self.setup_environ()</div><div class="line">        self.result = application(self.environ, self.start_response)</div><div class="line">        self.finish_response()</div><div class="line">    except:</div><div class="line">        try:</div><div class="line">            self.handle_error()</div><div class="line">        except:</div><div class="line">            # If we get an error handling an error, just give up already!</div><div class="line">            self.close()</div><div class="line">            raise   # ...and let the actual server figure it out.</div></pre></td></tr></table></figure>
+<p>application(self.environ, self.start_response)也就相当于是django.contrib.staticfiles.handlers.StaticFilesHandler.<strong>call</strong>(self.environ, lf.start_response)。</p>
+<p>django.contrib.staticfiles.handlers.py:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">def __call__(self, environ, start_response):</div><div class="line">    if not self._should_handle(get_path_info(environ)):</div><div class="line">        return self.application(environ, start_response)</div><div class="line">    return super().__call__(environ, start_response)</div></pre></td></tr></table></figure></p>
+<p>通过层层流转，最终进入django的静态文件处理的Handler。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>environ这个变量在django的WSGIServer和WSGIRequestHandler中扮演这非常重要的角色，因为所有的客户端ip、请求的URL、cookie、session、header等等信息都保存在其中。 </p>
+<p>WSGIServer： 用于处理socket请求和对接WSGIRequestHandler。 </p>
+<p>WSGIRequestHandler：针对environ进行预处理和对接WSGIServerHandler。 </p>
+<p>ServerHandler： 用于执行应用程序(application)和返回响应给WSGIServer。</p>
+<h4 id="参考博文："><a href="#参考博文：" class="headerlink" title="参考博文："></a>参考博文：</h4><p>1、<a href="https://www.jianshu.com/p/17d78b52c732" target="_blank" rel="external">https://www.jianshu.com/p/17d78b52c732</a><br>2、<a href="http://www.hongweipeng.com/index.php/archives/1369/" target="_blank" rel="external">http://www.hongweipeng.com/index.php/archives/1369/</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.jpg" alt="jpzhang WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.jpg" alt="jpzhang Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/框架-Django/" rel="tag"># 框架 Django</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/27/2018112701/" rel="next" title="自定义Horizon">
+                <i class="fa fa-chevron-left"></i> 自定义Horizon
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/author.jpg"
+               alt="jpzhang" />
+          <p class="site-author-name" itemprop="name">jpzhang</p>
+           
+              <p class="site-description motion-element" itemprop="description">人生很多事急不得，你得等它自己熟</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jianpengzhang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/u011521019" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-link"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/3318517083" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、写在前面"><span class="nav-number">1.</span> <span class="nav-text">一、写在前面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、处理请求"><span class="nav-number">2.</span> <span class="nav-text">二、处理请求</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考博文："><span class="nav-number">2.0.0.2.</span> <span class="nav-text">参考博文：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jpzhang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="local-search-pop-overlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
